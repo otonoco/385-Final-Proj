@@ -1,0 +1,406 @@
+module mario (
+        input Reset, frame_clk,
+        input [7:0] keycode,
+        input [9:0] DrawX, DrawY,
+        input logic [9:0] luigi_x, luigi_y, luigi_size_y,
+        //input [9:0] kuribo1_x, kuribo1_y, kuribo2_x, kuribo2_y, kuribo3_x, kuribo3_y,
+        //input [9:0] coin_x, coin_y,
+        //input [9:0] mushroom_x, mushroom_y
+
+        output logic [9:0] mario_x, mario_y, mario_size_y,
+        output logic mario,
+        output logic mario_ground,
+        output logic mario_walking,
+        output logic mario_walk,
+        output logic mario_alive,
+        output logic [9:0] mario_addr
+);
+
+    parameter [9:0] mario_x_ori = 20;
+    parameter [9:0] mario_y_ori= 400;
+    parameter [9:0] mario_x_min = 0;
+    parameter [9:0] mario_x_max = 639;
+    parameter [9:0] mario_y_min = 0;
+    parameter [9:0] mario_y_max = 479;
+    parameter [9:0] mario_x_step = 2;
+    logic [9:0] mario_size_x;
+    assign mario_size_x = 10'd10;
+
+    logic [9:0] mario_y_vel;
+    logic direction;
+    logic normal_func;
+    
+    logic [9:0] mario_x_vel_input, mario_y_vel_input, mario_x_pos_input, mario_y_pos_input;
+    logic direction_input;
+    logic ground_input;
+    logic walking_input;
+    logic mario_walk_input;
+    logic mario_alive_input;
+    logic normal_func_input;
+    // logic [9:0] mario_size_y_input;
+
+    logic [9:0] mario_x_pos_temp, mario_y_pos_temp;
+    logic [9:0] clk_counter;
+
+    logic w, s, a, d;
+
+    //gravity checking
+    logic wall_down, wall_downleft, wall_downright;
+    wall down_coll (.DrawX(mario_x_pos_input), .DrawY(mario_y_pos_input + mario_size_y), .wall(wall_down));
+    wall downleft_coll  (.DrawX(mario_x_pos_input - 7 * mario_size_x/10), .DrawY(mario_y_pos_input + mario_size_y), .wall(wall_downleft));
+    wall downright_coll (.DrawX(mario_x_pos_input + 7 * mario_size_x/10), .DrawY(mario_y_pos_input + mario_size_y), .wall(wall_downright));
+
+    //push back checking
+    logic right_pushback, left_pushback, up_pushback, down_pushback, upleft_pushback, upright_pushback, downleft_pushback, downright_pushback;
+    wall right_push (.DrawX(mario_x_pos_temp + mario_size_x), .DrawY(mario_y_pos_temp), .wall(right_pushback));
+    wall left_push  (.DrawX(mario_x_pos_temp - mario_size_x), .DrawY(mario_y_pos_temp), .wall(left_pushback));
+
+    wall up_push    (.DrawX(mario_x_pos_temp), .DrawY(mario_y_pos_temp - mario_size_y), .wall(up_pushback));
+    wall down_push  (.DrawX(mario_x_pos_temp), .DrawY(mario_y_pos_temp + mario_size_y), .wall(down_pushback));
+
+    wall upleft_push(.DrawX(mario_x_pos_temp - mario_size_x), .DrawY(mario_y_pos_temp - mario_size_y), .wall(upleft_pushback));
+    wall uprigt_push(.DrawX(mario_x_pos_temp + mario_size_x), .DrawY(mario_y_pos_temp - mario_size_y), .wall(upright_pushback));
+
+    wall dnleft_push(.DrawX(mario_x_pos_temp - mario_size_x), .DrawY(mario_y_pos_temp + mario_size_y), .wall(downleft_pushback));
+    wall dnrigt_push(.DrawX(mario_x_pos_temp + mario_size_x), .DrawY(mario_y_pos_temp + mario_size_y), .wall(downright_pushback));
+    
+    logic coll_w_luigi_x;
+    logic coll_w_luigi_y;
+    always_comb
+    begin
+        if ((mario_x_pos_temp + mario_size_x >= luigi_x && luigi_x + mario_size_x >= mario_x_pos_temp) && (mario_y_pos_temp == luigi_y))
+            begin
+                coll_w_luigi_x <= 1'b1;
+            end
+        else
+            begin
+                coll_w_luigi_x <= 1'b0;
+            end
+    end
+
+    always_comb
+    begin
+        if ((luigi_y + mario_size_y == mario_y_pos_temp) && (mario_x_pos_temp + mario_size_x >= luigi_x && luigi_x + mario_size_x >= mario_x_pos_temp))
+            begin
+                coll_w_luigi_y <= 1'b1;
+            end
+        else
+            begin
+                coll_w_luigi_y <= 1'b0;
+            end
+    end
+
+    always_ff @ (posedge Reset or posedge frame_clk )
+    begin: Move_Mario
+        if (Reset)  // Asynchronous Reset
+            begin 
+                mario_size_y <= 10'd10;
+                mario_x <= mario_x_ori;
+                mario_y <= mario_y_ori;
+                mario_y_vel <= 10'd0;
+                clk_counter <= 10'd0;
+                direction <= 1'b1;
+                mario_ground <= 1'b1;
+                mario_alive <= 1'b1;
+                mario_walking <= 1'b0;
+                mario_walk <= 1'b0;
+            end
+        else
+            begin
+                case (keycode)
+                    8'h04 : 
+                        begin
+                            a <= 1'b1;       
+                        end
+                    8'h07 : 
+                        begin
+                            d <= 1'b1;    
+                        end
+                    8'h16 : 
+                        begin
+                            s <= 1'b1;
+                        end
+                    8'h1A : 
+                        begin
+                            w <= 1'b1;
+                        end  
+                    default: ;
+                endcase
+                // mario_size_y <= mario_size_y_input;
+                mario_x <= mario_x_pos_input;
+                mario_y <= mario_y_pos_input;
+                mario_y_vel <= mario_y_vel_input;
+                direction <= direction_input;
+                mario_ground <= ground_input;
+                mario_alive <= mario_alive_input;
+                mario_walking <= walking_input;
+                mario_walk <= mario_walk_input;
+                if (clk_counter > 1000)
+                    begin
+                        clk_counter <= 10'd0;
+                    end
+                else
+                    begin
+                        if (frame_clk)
+                            begin
+                                clk_counter ++;
+                            end
+                    end
+            end
+    end
+
+    always_comb
+    begin
+        // mario_size_y_input = mario_size_y;
+        mario_x_pos_input = mario_x;
+        mario_y_pos_input = mario_y;
+        mario_x_pos_temp = mario_x;
+        mario_y_pos_temp = mario_y;
+        mario_y_vel_input = mario_y_vel;
+        direction_input = direction;
+        ground_input = mario_ground;
+        walking_input = mario_walking;
+        mario_walk_input = mario_walk;
+        mario_alive_input = mario_alive;
+
+        if (frame_clk)
+            begin
+                walking_input = 1'b0;
+
+                if (mario_alive == 1'b0)
+                    begin
+                        if (clk_counter % 5 == 0)
+                            begin
+                                if (mario_y_vel == 10'd0)
+                                    begin
+                                        mario_y_vel_input = -10'd10;
+                                    end
+                                else if (mario_y_vel < 10'd0)
+                                    begin
+                                        mario_y_vel_input = mario_y_vel + 10'd2;
+                                    end
+                                else if (mario_y_vel < 10'd4)
+                                    begin
+                                        mario_y_vel_input = mario_y_vel + 10'd2;
+                                    end
+                                else
+                                    begin
+                                        mario_y_vel_input = mario_y_vel;
+                                    end
+                            end
+                        else
+                            begin
+                                mario_y_vel_input = mario_y_vel;
+                            end
+                        if (mario_y > 479 + mario_size_y)
+                            begin
+                                mario_x_pos_input = 10'd1023;
+                                mario_y_pos_input = 10'd1023;
+                                mario_y_vel_input = 10'd0;
+                            end
+                    end
+                else
+                    begin
+                        if (clk_counter % 3 == 0)
+                            begin
+                                if (mario_walking)
+                                    begin
+                                        if (mario_walk == 1'b0)
+                                            begin
+                                                mario_walk_input = 1'b1;
+                                            end
+                                        else
+                                            begin
+                                                mario_walk_input = 1'b0;
+                                            end
+                                    end
+                            end
+                        if (clk_counter % 10 == 0)
+                            begin
+                                if (mario_y_vel < 10'd0)
+                                    begin
+                                        mario_y_vel_input = mario_y_vel + 10'd2;
+                                    end
+                                else if (mario_y_vel < 10'd4)
+                                    begin
+                                        mario_y_vel_input = mario_y_vel + 10'd2;
+                                        ground_input = 1'b0; 
+                                    end
+                                else
+                                    begin
+                                        mario_y_vel_input = mario_y_vel;
+                                    end
+                            end
+                        else
+                            begin
+                                mario_y_vel_input = mario_y_vel;
+                            end
+                        
+                        if (wall_down || wall_downleft || wall_downright)
+                            begin
+                                mario_y_vel_input = 10'd0;
+                                ground_input = 1'b1;
+                                if (coll_w_luigi_x == 1'b0)
+                                    begin
+                                        if (a || d)
+                                            begin
+                                                walking_input = 1'b1;
+                                            end
+                                        else
+                                            begin
+                                                walking_input = 1'b0;
+                                            end
+                                    end
+                                else
+                                    walking_input = 1'b0;
+                            end
+
+                        mario_y_pos_input = mario_y + mario_y_vel;
+                        if (up_pushback || upleft_pushback || upright_pushback)
+                            begin
+                                mario_y_pos_input = mario_y_pos_temp + 20 - (mario_y_pos_temp % 20) + mario_size_y - 20;
+                                mario_y_vel_input = 10'd0;
+                            end
+                        if (down_pushback || downleft_pushback || downright_pushback)
+                            begin
+                                mario_y_pos_input = mario_y_pos_temp - mario_y_pos_temp % 20 - mario_size_y + 20;
+                            end
+                        
+                        if (coll_w_luigi_y == 1'b0)
+                            begin
+                                if (w == 1'b1)
+                                begin
+                                    ground_input = 1'b0;
+                                    if (wall_down || wall_downleft || wall_downright)
+                                        begin
+                                            mario_y_vel_input = -10'd5;
+                                        end
+                                    mario_y_pos_input = mario_y + mario_y_vel;
+        
+                                    if (up_pushback || upleft_pushback || upright_pushback) 
+                                        begin
+                                            mario_y_pos_input = mario_y_pos_temp + 20 - (mario_y_pos_temp % 20) + mario_size_y - 20;
+                                            mario_y_vel_input = 10'd0;
+                                        end
+                                    if (down_pushback || downleft_pushback || downright_pushback)
+                                        begin
+                                            mario_y_pos_input = mario_y_pos_temp - mario_y_pos_temp % 20 - mario_size_y + 20;
+                                        end
+                                end
+                            end
+                        else 
+                            begin
+                                ground_input = 1'b1;
+                            end
+                        
+                        if (coll_w_luigi_x == 1'b0)
+                            begin
+                                if (a == 1'b1)
+                                    begin
+                                        direction_input = 1'b0;
+                                        mario_x_pos_temp = mario_x - mario_x_step;
+                                        if (left_pushback || upleft_pushback || downleft_pushback)
+                                            begin
+                                                mario_x_pos_input = mario_x_pos_temp + 20 - (mario_x_pos_temp % 20) + mario_size_x - 20;
+                                            end
+                                        else
+                                            begin
+                                                mario_x_pos_input = mario_x_pos_temp;
+                                            end
+
+                                        mario_y_pos_input = mario_y + mario_y_vel;
+        
+                                        if (up_pushback || upleft_pushback || upright_pushback) 
+                                            begin
+                                                mario_y_pos_input = mario_y_pos_temp + 20 - (mario_y_pos_temp % 20) + mario_size_y - 20;
+                                                mario_y_vel_input = 10'd0;
+                                            end
+                                        if (down_pushback || downleft_pushback || downright_pushback)
+                                            begin
+                                                mario_y_pos_input = mario_y_pos_temp - mario_y_pos_temp % 20 - mario_size_y + 20;
+                                            end
+                                    end
+                                if (d == 1'b1)
+                                    begin
+                                        direction_input = 1'b1;
+                                        mario_x_pos_temp = mario_x + mario_x_step;
+                                        if (right_pushback || upright_pushback || downright_pushback)
+                                            begin
+                                                mario_x_pos_input = mario_x_pos_temp - mario_x_pos_temp % 20 - mario_size_x + 20;
+                                            end
+                                        else
+                                            begin
+                                                mario_x_pos_input = mario_x_pos_temp;
+                                            end
+                                        mario_y_pos_input = mario_y + mario_y_vel;
+            
+                                        if (up_pushback || upleft_pushback || upright_pushback) 
+                                            begin
+                                                mario_y_pos_input = mario_y_pos_temp + 20 - (mario_y_pos_temp % 20) + mario_size_y - 20;
+                                                mario_y_vel_input = 10'd0;
+                                            end
+                                        if (down_pushback || downleft_pushback || downright_pushback)
+                                            begin
+                                                mario_y_pos_input = mario_y_pos_temp - mario_y_pos_temp % 20 - mario_size_y + 20;
+                                            end
+                                    end
+                            end
+                        else
+                            begin
+                                mario_x_pos_input = mario_x;
+                                mario_y_pos_input = mario_y;
+                            end
+                            
+                    end
+            end
+    end
+
+    int DistX, DistY;
+    assign DistX = DrawX - mario_x + mario_size_x;
+    assign DistY = DrawY - mario_y + mario_size_y;
+
+    always_comb
+    begin
+        if (DistX <= mario_size_x * 2 && DistY <= mario_size_y * 2)
+            begin
+                if (DistX > 0 && DistY > 0)
+                    begin
+                        mario = 1'b1;
+                    end
+                else
+                    begin
+                        mario = 1'b0;
+                    end
+            end
+        else
+            begin
+                mario = 1'b0;
+            end
+        if (mario)
+            begin
+                if (direction)
+                    begin
+                        mario_addr = DistX + DistY * 21;
+                    end
+                else
+                    begin
+                        if (DistX < mario_size_x)
+                            begin
+                                mario_addr = 2 * mario_size_x - DistX + DistY * 21;
+                            end
+                        else if (DistX > mario_size_x)
+                            begin
+                                mario_addr = DistY * 21 - DistX;
+                            end
+                        else 
+                            begin
+                                mario_addr = DistX + DistY * 21;
+                            end
+                    end
+            end
+        else
+            begin
+                mario_addr = 9'b0;
+            end
+    end
+endmodule
