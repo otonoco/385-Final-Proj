@@ -62,7 +62,7 @@ logic Reset_h, vssig, blank, sync, VGA_Clk;
 	logic [1:0] hundreds;
 	logic [9:0] drawxsig, drawysig, ballxsig, ballysig, ballsizesig;
 	logic [7:0] Red, Blue, Green;
-	logic [7:0] keycode;
+	logic [15:0] keycode;
 
 //=======================================================
 //  Structural coding
@@ -86,22 +86,51 @@ logic Reset_h, vssig, blank, sync, VGA_Clk;
 	assign ARDUINO_IO[6] = 1'b1;
 	
 	//HEX drivers to convert numbers to HEX output
-	HexDriver hex_driver4 (hex_num_4, HEX4[6:0]);
-	assign HEX4[7] = 1'b1;
+	// HexDriver hex_driver4 (hex_num_4, HEX4[6:0]);
+	// assign HEX4[7] = 1'b1;
 	
-	HexDriver hex_driver3 (hex_num_3, HEX3[6:0]);
-	assign HEX3[7] = 1'b1;
+	// HexDriver hex_driver3 (hex_num_3, HEX3[6:0]);
+	// assign HEX3[7] = 1'b1;
 	
-	HexDriver hex_driver1 (hex_num_1, HEX1[6:0]);
-	assign HEX1[7] = 1'b1;
+	// HexDriver hex_driver1 (hex_num_1, HEX1[6:0]);
+	// assign HEX1[7] = 1'b1;
 	
-	HexDriver hex_driver0 (hex_num_0, HEX0[6:0]);
-	assign HEX0[7] = 1'b1;
+	// HexDriver hex_driver0 (hex_num_0, HEX0[6:0]);
+	// assign HEX0[7] = 1'b1;
 	
-	//fill in the hundreds digit as well as the negative sign
-	assign HEX5 = {1'b1, ~signs[1], 3'b111, ~hundreds[1], ~hundreds[1], 1'b1};
-	assign HEX2 = {1'b1, ~signs[0], 3'b111, ~hundreds[0], ~hundreds[0], 1'b1};
+	// //fill in the hundreds digit as well as the negative sign
+	// assign HEX5 = {1'b1, ~signs[1], 3'b111, ~hundreds[1], ~hundreds[1], 1'b1};
+	// assign HEX2 = {1'b1, ~signs[0], 3'b111, ~hundreds[0], ~hundreds[0], 1'b1};
+
+    HexDriver hex0 (
+            .In(keycode[3:0]),
+            .Out(HEX0)
+    );
+
+    HexDriver hex1 (
+            .In(keycode[7:4]),
+            .Out(HEX1)
+    );
+
+    HexDriver hex2 (
+            .In(keycode[11:8]),
+            .Out(HEX2)
+    );
+
+    HexDriver hex3 (
+            .In(keycode[15:12]),
+            .Out(HEX3)
+    );
 	
+    HexDriver hex4 (
+            .In(4'b1001),
+            .Out(HEX4)
+    );
+
+    HexDriver hex5 (
+            .In(4'b1001),
+            .Out(HEX5)
+    );
 	
 	//Assign one button to reset
 	assign {Reset_h}=~ (KEY[0]);
@@ -158,9 +187,25 @@ logic Reset_h, vssig, blank, sync, VGA_Clk;
     logic [9:0] mario_x, mario_y, process, mario_y_motion;
     logic mario, mario_in_air;
     logic [23:0] mario_pic_out;
+    logic [23:0] mario_sr, mario_sl, mario_rr1, mario_rr2, mario_rr3, mario_rl1, mario_rl2, mario_rl3, mario_jr, mario_jl, mario_die; 
 
-    mario_s mmario(.Clk(Clk), .Reset(Reset_h), .frame_clk(VGA_VS), .DrawX(drawxsig), .DrawY(drawysig), .mario_alive(1'b1), .keycode(keycode), .mario_x(mario_x), .mario_y(mario_y), .process(process), .mario_y_motion(mario_y_motion), .mario(mario), .mario_in_air(mario_in_air), .mario_pic_out(mario_pic_out));
+    mario_s mmario(.Clk(Clk), .Reset(Reset_h), .frame_clk(VGA_VS), .DrawX(drawxsig), .DrawY(drawysig), .mario_alive(1'b1), .keycode(keycode), .mario_x(mario_x), .mario_y(mario_y), .process(process), .mario_y_motion(mario_y_motion), .mario(mario), .mario_in_air(mario_in_air), .mario_pic_out(mario_pic_out), .*);
     color_mapper cm(.mario(mario), .mario_pic_out(mario_pic_out), .DrawX(drawxsig), .DrawY(drawysig), .Red(Red), .Green(Green), .Blue(Blue));
 
+    STAND_R stand_r(.Clk(Clk), .read_addr((drawxsig - mario_x + process)%26 + 26 * ((drawysig - mario_y)%32)), .data_out(mario_sr));
+    STAND_R stand_l(.Clk(Clk), .read_addr((10'd25 - drawxsig + mario_x - process)%26 + 26 * ((drawysig - mario_y)%32)), .data_out(mario_sl));
+    
+    WR_1 walk_rigt_1(.Clk(Clk), .read_addr((drawxsig - mario_x + process)%26 + 26 * ((drawysig - mario_y)%32)), .data_out(mario_rr1));
+    WR_2 walk_rigt_2(.Clk(Clk), .read_addr((drawxsig - mario_x + process)%26 + 26 * ((drawysig - mario_y)%32)), .data_out(mario_rr2));
+    WR_3 walk_rigt_3(.Clk(Clk), .read_addr((drawxsig - mario_x + process)%26 + 26 * ((drawysig - mario_y)%32)), .data_out(mario_rr3));
+
+    WR_1 walk_left_1(.Clk(Clk), .read_addr((10'd25 - drawxsig + mario_x - process)%26 + 26 * ((drawysig - mario_y)%32)), .data_out(mario_rl1));
+    WR_2 walk_left_2(.Clk(Clk), .read_addr((10'd25 - drawxsig + mario_x - process)%26 + 26 * ((drawysig - mario_y)%32)), .data_out(mario_rl2));
+    WR_3 walk_left_3(.Clk(Clk), .read_addr((10'd25 - drawxsig + mario_x - process)%26 + 26 * ((drawysig - mario_y)%32)), .data_out(mario_rl3));
+
+    JR jump_rigt(.Clk(Clk), .read_addr((drawxsig - mario_x + process)%26 + 26 * ((drawysig - mario_y)%32)), .data_out(mario_jr));
+    JR jump_left(.Clk(Clk), .read_addr((10'd25 - drawxsig + mario_x - process)%26 + 26 * ((drawysig - mario_y)%32)), .data_out(mario_jl));
+
+    DEAD deadd(.Clk(Clk), .read_addr((drawxsig - mario_x + process)%26 + 26 * ((drawysig - mario_y)%32)), .data_out(mario_die));
 
 endmodule

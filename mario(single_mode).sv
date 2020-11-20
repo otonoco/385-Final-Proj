@@ -1,9 +1,10 @@
 module mario_s (
         input Reset, frame_clk, Clk,
-        input [7:0] keycode,
+        input [31:0] keycode,
         input [9:0] DrawX, DrawY,
-
         input mario_alive,
+
+        input [23:0] mario_sl, mario_sr, mario_rl1, mario_rl2, mario_rl3, mario_rr1, mario_rr2, mario_rr3, mario_jr, mario_jl, mario_die,
 
         output logic [9:0] mario_x, mario_y, process, mario_y_motion,
         output logic mario, mario_in_air,
@@ -11,39 +12,19 @@ module mario_s (
         output logic [23:0] mario_pic_out
 );
     logic w, s, a, d;
-    always_ff @ (posedge frame_clk)
-    begin
-        if (keycode == 8'h04)
-            begin
-                a = 1'b1;
-            end
-        else if (keycode == 8'h07)
-            begin
-                d = 1'b1;
-            end
-        else if (keycode == 8'h16)
-            begin
-                s = 1'b1;
-            end
-        else if (keycode == 8'h1A)
-            begin
-                w = 1'b1;
-            end
-        else 
-            begin
-                a = 1'b0;
-                s = 1'b0;
-                d = 1'b0;
-                w = 1'b0;
-            end
-    end
+    logic sl, sr, rr1, rr2, rr3, rl1, rl2, rl3, jr, jl, il, ir, gr, gl, di;
+
+    assign a = ((keycode[15:8] == 8'h04) | (keycode[7:0] == 8'h04)|(keycode[23:16] == 8'h04) | (keycode[31:24] == 8'h04));
+    assign d = ((keycode[15:8] == 8'h07) | (keycode[7:0] == 8'h07)|(keycode[23:16] == 8'h07) | (keycode[31:24] == 8'h07));
+    assign w = ((keycode[15:8] == 8'h1A) | (keycode[7:0] == 8'h1A)|(keycode[23:16] == 8'h1A) | (keycode[31:24] == 8'h1A));
+    assign s = ((keycode[15:8] == 8'h16) | (keycode[7:0] == 8'h16)|(keycode[23:16] == 8'h16) | (keycode[31:24] == 8'h16));
 
     mario_image m_i(.*);
     mario_movem m_m(.*);
 
     always_comb
     begin
-        if (mario_x <= process + DrawX && DrawX + process < mario_x + 10'd32 && DrawY >= mario_y && DrawY <= mario_y + 10'd32)
+        if (mario_x <= process + DrawX && DrawX + process < mario_x + 10'd26 && DrawY >= mario_y && DrawY <= mario_y + 10'd32)
             begin
                 mario = 1'b1;
             end
@@ -53,25 +34,6 @@ module mario_s (
 
 endmodule 
 
-// module aj (
-//         input logic [9:0] mario_x, mario_y, mario_y_motion, 
-//         output logic [9:0] level,
-//         output logic mario_in_air
-// );
-//     always_comb
-//     begin
-//         if (mario_y + mario_y_motion >= 10'd384)
-//             begin
-//                 mario_in_air = 1'b0;
-//                 level = 10'd384;
-//             end
-//         else
-//             begin
-//                 mario_in_air = 1'b1;
-//                 level = 10'd384;
-//             end
-//     end
-// endmodule
 
 module mario_movem (
         input Clk, Reset, frame_clk,
@@ -79,7 +41,8 @@ module mario_movem (
         input mario_alive,
         
         output logic [9:0] mario_x, mario_y, process, mario_y_motion,
-        output logic mario_in_air
+        output logic mario_in_air,
+        output logic sl, sr, rr1, rr2, rr3, rl1, rl2, rl3, jr, jl, il, ir, gr, gl, di
 );
 
     parameter [9:0] mario_x_ori = 20;
@@ -91,7 +54,7 @@ module mario_movem (
     parameter [9:0] mario_y_max = 479;
     parameter [9:0] mario_x_step = 2;
 
-    parameter [9:0] mario_x_size = 32;
+    parameter [9:0] mario_x_size = 26;
 
     logic [9:0] mario_x_motion, level;
     logic [9:0] mario_x_pos_input, mario_x_motion_input, mario_y_pos_input, mario_y_motion_input;
@@ -99,8 +62,6 @@ module mario_movem (
 
     logic [23:0] mario_counter, mario_counter_in;
     logic flag, flag_in;
-
-    // aj ajj(.mario_x(mario_x), .mario_y(mario_y), .mario_y_motion(mario_y_motion), .level(level), .mario_in_air(mario_in_air));
 
     always_comb
     begin
@@ -116,16 +77,20 @@ module mario_movem (
             end
     end
 
-    enum logic [3:0] {STAND, 
+    enum logic [3:0] {STAND_R,
+                      STAND_L, 
                       RUN_1_R, 
                       RUN_2_R, 
                       RUN_3_R,
 					  RUN_1_L, 
                       RUN_2_L, 
                       RUN_3_L, 
-                      JUMP, 
-                      IN_AIR, 
-                      GLIDE,
+                      JUMP_R,
+                      JUMP_L, 
+                      IN_AIR_L,
+                      IN_AIR_R, 
+                      GLIDE_R,
+                      GLIDE_L,
                       DIE} STATE, NEXT_STATE;
     
     logic frame_clk_delayed, frame_clk_rising_edge;
@@ -144,7 +109,7 @@ module mario_movem (
                 mario_x_motion <= 10'd0;
                 mario_y_motion <= 10'd0;
                 process <= 10'd0;
-                STATE <= STAND;
+                STATE <= STAND_R;
                 mario_counter <= 24'b0;
                 flag <= 1'b0;
             end
@@ -161,7 +126,7 @@ module mario_movem (
             end
     end
 
-    always_comb
+    always_ff @ (posedge Clk)
     begin
         mario_x_pos_input = mario_x;
         mario_y_pos_input = mario_y;
@@ -175,11 +140,26 @@ module mario_movem (
         if (frame_clk_rising_edge)
             begin
                 unique case (STATE)
-                    STAND:
+                    STAND_R:
                         begin
                             mario_x_motion_input = 10'd0;
                             mario_y_motion_input = 10'd0;
                             mario_counter_in = 24'b0;
+                            sr =  1'b1;
+                            sl =  1'b0;
+                            rr1 = 1'b0;
+                            rr2 = 1'b0; 
+                            rr3 = 1'b0; 
+                            rl1 = 1'b0; 
+                            rl2 = 1'b0; 
+                            rl3 = 1'b0; 
+                            jr =  1'b0; 
+                            jl =  1'b0;
+                            ir =  1'b0;
+                            il =  1'b0; 
+                            gr =  1'b0;
+                            gl =  1'b0;
+                            di =  1'b0;
                             if (mario_alive == 1'b0)
                                 begin
                                     NEXT_STATE = DIE;
@@ -188,7 +168,7 @@ module mario_movem (
                                 end
                             else if (w && ~flag)
                                 begin
-                                    NEXT_STATE = JUMP;
+                                    NEXT_STATE = JUMP_R;
                                     flag_in = 1'b1;
                                 end
                             else if (a)
@@ -203,22 +183,90 @@ module mario_movem (
                                 end
                             else if (~w)
                                 begin
-                                    NEXT_STATE = STAND;
+                                    NEXT_STATE = STAND_R;
                                     flag_in = 1'b0;
                                 end
                             else
                                 begin
-                                    NEXT_STATE = STAND;
+                                    NEXT_STATE = STAND_R;
+                                    flag_in = flag;
+                                end
+                        end
+                    
+                    STAND_L:
+                        begin
+                            mario_x_motion_input = 10'd0;
+                            mario_y_motion_input = 10'd0;
+                            mario_counter_in = 24'b0;
+                            sr =  1'b0;
+                            sl =  1'b1;
+                            rr1 = 1'b0;
+                            rr2 = 1'b0; 
+                            rr3 = 1'b0; 
+                            rl1 = 1'b0; 
+                            rl2 = 1'b0; 
+                            rl3 = 1'b0; 
+                            jr =  1'b0; 
+                            jl =  1'b0;
+                            ir =  1'b0;
+                            il =  1'b0; 
+                            gr =  1'b0; 
+                            gl =  1'b0;
+                            di =  1'b0;
+                            if (mario_alive == 1'b0)
+                                begin
+                                    NEXT_STATE = DIE;
+                                    mario_x_motion_input = 10'd0;
+                                    mario_y_motion_input = ~(10'd15) + 1'd1;
+                                end
+                            else if (w && ~flag)
+                                begin
+                                    NEXT_STATE = JUMP_L;
+                                    flag_in = 1'b1;
+                                end
+                            else if (a)
+                                begin
+                                    NEXT_STATE = RUN_1_L;
+                                    flag_in = 1'b0;
+                                end
+                            else if (d)
+                                begin
+                                    NEXT_STATE = RUN_1_R;
+                                    flag_in = 1'b0;
+                                end
+                            else if (~w)
+                                begin
+                                    NEXT_STATE = STAND_L;
+                                    flag_in = 1'b0;
+                                end
+                            else
+                                begin
+                                    NEXT_STATE = STAND_L;
                                     flag_in = flag;
                                 end
                         end
                     
                     RUN_1_R:
                         begin
-                            mario_x_motion_input = 10'd1;
+                            mario_x_motion_input = 10'd2;
                             mario_y_motion_input = 10'd0;
                             flag_in = flag;
-                            mario_counter_in = 24'b0;
+                            
+                            sr =  1'b0;
+                            sl =  1'b0;
+                            rr1 = 1'b1;
+                            rr2 = 1'b0; 
+                            rr3 = 1'b0; 
+                            rl1 = 1'b0; 
+                            rl2 = 1'b0; 
+                            rl3 = 1'b0; 
+                            jr =  1'b0; 
+                            jl =  1'b0;
+                            ir =  1'b0; 
+                            il =  1'b0; 
+                            gr =  1'b0;
+                            gl =  1'b0;
+                            di =  1'b0;
                             if (mario_x + mario_x_size >= mario_x_max)
                                 begin
                                     mario_x_motion_input = 10'd0;
@@ -235,21 +283,21 @@ module mario_movem (
                                 end
                             else if (w && ~flag)
                                 begin
-                                    NEXT_STATE = JUMP;
+                                    NEXT_STATE = JUMP_R;
                                     flag_in = 1'b1;
                                 end
-                            else if (d && mario_counter[3])
+                            else if (d && mario_counter[22])
                                 begin
                                     NEXT_STATE = RUN_2_R;
                                 end
-                            else if (d && ~mario_counter[3])
+                            else if (d && ~mario_counter[22])
                                 begin
                                     NEXT_STATE = RUN_1_R;
-                                    mario_counter_in = mario_counter + 1'd1;
+                                    mario_counter_in = mario_counter + 24'b1;
                                 end
                             else 
                                 begin
-                                    NEXT_STATE = STAND;
+                                    NEXT_STATE = STAND_R;
                                 end
                         end
 
@@ -258,7 +306,21 @@ module mario_movem (
                             mario_x_motion_input = 10'd2;
                             mario_y_motion_input = 10'd0;
                             flag_in = flag;
-                            mario_counter_in = 24'b0;
+                            sr =  1'b0;
+                            sl =  1'b0;
+                            rr1 = 1'b0;
+                            rr2 = 1'b1; 
+                            rr3 = 1'b0; 
+                            rl1 = 1'b0; 
+                            rl2 = 1'b0; 
+                            rl3 = 1'b0; 
+                            jr =  1'b0; 
+                            jl =  1'b0;
+                            ir =  1'b0; 
+                            il =  1'b0; 
+                            gr =  1'b0;
+                            gl =  1'b0;
+                            di =  1'b0;
                             if (mario_x + mario_x_size >= mario_x_max)
                                 begin
                                     mario_x_motion_input = 10'd0;
@@ -275,30 +337,44 @@ module mario_movem (
                                 end
                             else if (w && ~flag)
                                 begin
-                                    NEXT_STATE = JUMP;
+                                    NEXT_STATE = JUMP_R;
                                     flag_in = 1'b1;
                                 end
-                            else if (d && mario_counter[3])
+                            else if (d && mario_counter[22])
                                 begin
                                     NEXT_STATE = RUN_3_R;
                                 end
-                            else if (d && ~mario_counter[3])
+                            else if (d && ~mario_counter[22])
                                 begin
                                     NEXT_STATE = RUN_2_R;
-                                    mario_counter_in = mario_counter + 1'd1;
+                                    mario_counter_in = mario_counter + 24'b1;
                                 end
                             else 
                                 begin
-                                    NEXT_STATE = STAND;
+                                    NEXT_STATE = STAND_R;
                                 end
                         end
 
                     RUN_3_R:
                         begin
-                            mario_x_motion_input = 10'd3;
+                            mario_x_motion_input = 10'd2;
                             mario_y_motion_input = 10'd0;
                             flag_in = flag;
-                            mario_counter_in = 24'b0;
+                            sr =  1'b0;
+                            sl =  1'b0;
+                            rr1 = 1'b0;
+                            rr2 = 1'b0; 
+                            rr3 = 1'b1; 
+                            rl1 = 1'b0; 
+                            rl2 = 1'b0; 
+                            rl3 = 1'b0; 
+                            jr =  1'b0; 
+                            jl =  1'b0;
+                            ir =  1'b0; 
+                            il =  1'b0; 
+                            gr =  1'b0;
+                            gl =  1'b0;
+                            di =  1'b0;
                             if (mario_x + mario_x_size >= mario_x_max)
                                 begin
                                     mario_x_motion_input = 10'd0;
@@ -315,25 +391,44 @@ module mario_movem (
                                 end
                             else if (w && ~flag)
                                 begin
-                                    NEXT_STATE = JUMP;
+                                    NEXT_STATE = JUMP_R;
                                     flag_in = 1'b1;
                                 end
-                            else if (d)
+                            else if (d && mario_counter[22])
+                                begin
+                                    NEXT_STATE = RUN_1_R;
+                                end
+                            else if (d && ~mario_counter[22])
                                 begin
                                     NEXT_STATE = RUN_3_R;
+                                    mario_counter_in = mario_counter + 24'b1;
                                 end
                             else 
                                 begin
-                                    NEXT_STATE = RUN_1_R;
+                                    NEXT_STATE = STAND_R;
                                 end
                         end
 
                     RUN_1_L:
                         begin
-                            mario_x_motion_input = (~10'd1) + 1'b1;
+                            mario_x_motion_input = (~10'd2) + 1'b1;
                             mario_y_motion_input = 10'd0;
                             flag_in = flag;
-                            mario_counter_in = 24'b0;
+                            sr =  1'b0;
+                            sl =  1'b0;
+                            rr1 = 1'b0;
+                            rr2 = 1'b0; 
+                            rr3 = 1'b0; 
+                            rl1 = 1'b1; 
+                            rl2 = 1'b0; 
+                            rl3 = 1'b0; 
+                            jr =  1'b0; 
+                            jl =  1'b0;
+                            ir =  1'b0; 
+                            il =  1'b0; 
+                            gr =  1'b0;
+                            gl =  1'b0;
+                            di =  1'b0;
                             if (mario_x + mario_x_motion <= 10'd1)
                                 begin
                                     mario_x_motion_input = 10'd0;
@@ -350,21 +445,21 @@ module mario_movem (
                                 end
                             else if (w && ~flag)
                                 begin
-                                    NEXT_STATE = JUMP;
+                                    NEXT_STATE = JUMP_L;
                                     flag_in = 1'b1;
                                 end
-                            else if (a && mario_counter[3])
+                            else if (a && mario_counter[22])
                                 begin
                                     NEXT_STATE = RUN_2_L;
                                 end
-                            else if (a && ~mario_counter[3])
+                            else if (a && ~mario_counter[22])
                                 begin
                                     NEXT_STATE = RUN_1_L;
-                                    mario_counter_in = mario_counter + 1'd1;
+                                    mario_counter_in = mario_counter + 24'b1;
                                 end
                             else 
                                 begin
-                                    NEXT_STATE = STAND;
+                                    NEXT_STATE = STAND_L;
                                 end
                         end
                     
@@ -373,7 +468,21 @@ module mario_movem (
                             mario_x_motion_input = (~10'd2) + 1'b1;
                             mario_y_motion_input = 10'd0;
                             flag_in = flag;
-                            mario_counter_in = 24'b0;
+                            sr =  1'b0;
+                            sl =  1'b0;
+                            rr1 = 1'b0;
+                            rr2 = 1'b0; 
+                            rr3 = 1'b0; 
+                            rl1 = 1'b0; 
+                            rl2 = 1'b1; 
+                            rl3 = 1'b0; 
+                            jr =  1'b0; 
+                            jl =  1'b0;
+                            ir =  1'b0; 
+                            il =  1'b0; 
+                            gr =  1'b0;
+                            gl =  1'b0;
+                            di =  1'b0;
                             if (mario_x + mario_x_motion <= 10'd1)
                                 begin
                                     mario_x_motion_input = 10'd0;
@@ -390,30 +499,44 @@ module mario_movem (
                                 end
                             else if (w && ~flag)
                                 begin
-                                    NEXT_STATE = JUMP;
+                                    NEXT_STATE = JUMP_L;
                                     flag_in = 1'b1;
                                 end
-                            else if (a && mario_counter[3])
+                            else if (a && mario_counter[22]])
                                 begin
                                     NEXT_STATE = RUN_3_L;
                                 end
-                            else if (a && ~mario_counter[3])
+                            else if (a && ~mario_counter[22])
                                 begin
-                                    NEXT_STATE = RUN_1_L;
-                                    mario_counter_in = mario_counter + 1'd1;
+                                    NEXT_STATE = RUN_2_L;
+                                    mario_counter_in = mario_counter + 24'b1;
                                 end
                             else 
                                 begin
-                                    NEXT_STATE = STAND;
+                                    NEXT_STATE = STAND_L;
                                 end
                         end
                     
                     RUN_3_L:
                         begin
-                            mario_x_motion_input = (~10'd3) + 1'b1;
+                            mario_x_motion_input = (~10'd2) + 1'b1;
                             mario_y_motion_input = 10'd0;
                             flag_in = flag;
-                            mario_counter_in = 24'b0;
+                            sr =  1'b0;
+                            sl =  1'b0;
+                            rr1 = 1'b0;
+                            rr2 = 1'b0; 
+                            rr3 = 1'b0; 
+                            rl1 = 1'b0; 
+                            rl2 = 1'b0; 
+                            rl3 = 1'b1; 
+                            jr =  1'b0; 
+                            jl =  1'b0;
+                            ir =  1'b0; 
+                            il =  1'b0; 
+                            gr =  1'b0;
+                            gl =  1'b0;
+                            di =  1'b0;
                             if (mario_x + mario_x_motion <= 10'd1)
                                 begin
                                     mario_x_motion_input = 10'd0;
@@ -430,29 +553,87 @@ module mario_movem (
                                 end
                             else if (w && ~flag)
                                 begin
-                                    NEXT_STATE = JUMP;
+                                    NEXT_STATE = JUMP_L;
                                     flag_in = 1'b1;
                                 end
-                            else if (a)
-                                begin
-                                    NEXT_STATE = RUN_3_L;
-                                end
-                            else 
+                            else if (a && mario_counter[22])
                                 begin
                                     NEXT_STATE = RUN_1_L;
                                 end
+                            else if (a && ~mario_counter[22])
+                                begin
+                                    NEXT_STATE = RUN_3_L;
+                                    mario_counter_in = mario_counter + 24'b1;
+                                end
+                            else 
+                                begin
+                                    NEXT_STATE = STAND_L;
+                                end
                         end
                     
-                    JUMP:
+                    JUMP_R:
                         begin
+                            sr =  1'b0;
+                            sl =  1'b0;
+                            rr1 = 1'b0;
+                            rr2 = 1'b0; 
+                            rr3 = 1'b0; 
+                            rl1 = 1'b0; 
+                            rl2 = 1'b0; 
+                            rl3 = 1'b0; 
+                            jr =  1'b1; 
+                            jl =  1'b0;
+                            ir =  1'b0; 
+                            il =  1'b0; 
+                            gr =  1'b0;
+                            gl =  1'b0;
+                            di =  1'b0;
                             mario_x_motion_input = mario_x_motion;
                             mario_y_motion_input = (~10'd15) + 1'd1;
                             flag_in = 1'b1;
-                            NEXT_STATE = IN_AIR;
+                            NEXT_STATE = IN_AIR_R;
                         end
                     
-                    IN_AIR:
+                    JUMP_L:
                         begin
+                            sr =  1'b0;
+                            sl =  1'b0;
+                            rr1 = 1'b0;
+                            rr2 = 1'b0; 
+                            rr3 = 1'b0; 
+                            rl1 = 1'b0; 
+                            rl2 = 1'b0; 
+                            rl3 = 1'b0; 
+                            jr =  1'b0; 
+                            jl =  1'b1;
+                            ir =  1'b0; 
+                            il =  1'b0; 
+                            gr =  1'b0;
+                            gl =  1'b0;
+                            di =  1'b0;
+                            mario_x_motion_input = mario_x_motion;
+                            mario_y_motion_input = (~10'd15) + 1'd1;
+                            flag_in = 1'b1;
+                            NEXT_STATE = IN_AIR_L;
+                        end
+                    
+                    IN_AIR_R:
+                        begin
+                            sr =  1'b0;
+                            sl =  1'b0;
+                            rr1 = 1'b0;
+                            rr2 = 1'b0; 
+                            rr3 = 1'b0; 
+                            rl1 = 1'b0; 
+                            rl2 = 1'b0; 
+                            rl3 = 1'b0; 
+                            jr =  1'b0; 
+                            jl =  1'b0;
+                            ir =  1'b1; 
+                            il =  1'b0; 
+                            gr =  1'b0;
+                            gl =  1'b0;
+                            di =  1'b0;
                             if (a && ~d && mario_x_motion_input == 10'd0)
                                 begin
                                     mario_x_motion_input = (~10'd2) + 1'b1;
@@ -486,7 +667,7 @@ module mario_movem (
                                 begin
                                     if (mario_in_air)
                                         begin
-                                            NEXT_STATE = IN_AIR;
+                                            NEXT_STATE = IN_AIR_R;
                                             mario_y_motion_input = mario_y_motion + 1'd1;
                                             if (mario_y + mario_y_motion < 10'd5)
                                                 begin
@@ -495,7 +676,14 @@ module mario_movem (
                                         end
                                     else
                                         begin
-                                            NEXT_STATE = GLIDE;
+                                            if (a == 1'b1)
+                                                begin
+                                                    NEXT_STATE = GLIDE_L;
+                                                end
+                                            else 
+                                                begin
+                                                    NEXT_STATE = GLIDE_R;
+                                                end
                                             mario_y_motion_input = 10'd0;
                                             if (w)
                                                 begin
@@ -508,10 +696,106 @@ module mario_movem (
                                         end
                                 end
                         end
+
+                    IN_AIR_L:
+                        begin
+                            sr =  1'b0;
+                            sl =  1'b0;
+                            rr1 = 1'b0;
+                            rr2 = 1'b0; 
+                            rr3 = 1'b0; 
+                            rl1 = 1'b0; 
+                            rl2 = 1'b0; 
+                            rl3 = 1'b0; 
+                            jr =  1'b0; 
+                            jl =  1'b0;
+                            ir =  1'b0;
+                            il =  1'b1; 
+                            gr =  1'b0;
+                            gl =  1'b0;
+                            di =  1'b0;
+                            if (a && ~d && mario_x_motion_input == 10'd0)
+                                begin
+                                    mario_x_motion_input = (~10'd2) + 1'b1;
+        
+                                    if (mario_x + mario_x_motion_input <= 10'd1)
+                                        begin
+                                            mario_x_motion_input = 10'd0;
+                                        end
+                                end
+                            else if (~a && d && mario_x_motion_input == 10'd0)
+                                begin
+                                    mario_x_motion_input = 10'd2;
+                                    if (mario_x + mario_x_motion_input >= 10'd439)
+                                        begin
+                                            mario_x_motion_input = 10'd0;
+                                        end
+                                end
+                            else
+                                begin
+                                    mario_x_motion_input = mario_x_motion;
+                                end
+
+                            flag_in = 1'b1;
+                            if (mario_alive == 1'b0)
+                                begin
+                                    NEXT_STATE = DIE;
+                                    mario_x_motion_input = 10'd0;
+                                    mario_y_motion_input = ~(10'd15) + 1'd1;
+                                end
+                            else
+                                begin
+                                    if (mario_in_air)
+                                        begin
+                                            NEXT_STATE = IN_AIR_L;
+                                            mario_y_motion_input = mario_y_motion + 1'd1;
+                                            if (mario_y + mario_y_motion < 10'd5)
+                                                begin
+                                                    mario_y_motion_input = (~mario_y_motion) + 10'd1;
+                                                end
+                                        end
+                                    else
+                                        begin
+                                            if (a == 1'b1)
+                                                begin
+                                                    NEXT_STATE = GLIDE_L;
+                                                end
+                                            else 
+                                                begin
+                                                    NEXT_STATE = GLIDE_R;
+                                                end
+                                            mario_y_motion_input = 10'd0;
+                                            if (w)
+                                                begin
+                                                    flag_in = 1'b1;
+                                                end
+                                            else
+                                                begin
+                                                    flag_in = 1'b0;
+                                                end
+                                        end
+                                end
+                        end
+
                     
-                    GLIDE:
+                    GLIDE_R:
                         begin
                             mario_x_motion_input = mario_x_motion;
+                            sr =  1'b0;
+                            sl =  1'b0;
+                            rr1 = 1'b0;
+                            rr2 = 1'b0; 
+                            rr3 = 1'b0; 
+                            rl1 = 1'b0; 
+                            rl2 = 1'b0; 
+                            rl3 = 1'b0; 
+                            jr =  1'b0; 
+                            jl =  1'b0;
+                            ir =  1'b0; 
+                            il =  1'b0; 
+                            gr =  1'b1;
+                            gl =  1'b0;
+                            di =  1'b0;
                             if (mario_alive == 1'd0)
                                 begin
                                     NEXT_STATE = DIE;
@@ -530,7 +814,7 @@ module mario_movem (
                                 begin
                                     if (mario_x_motion == 10'd0)
                                         begin
-                                            NEXT_STATE = STAND;
+                                            NEXT_STATE = STAND_R;
                                         end
                                     else if (mario_x_motion == 10'd1)
                                         begin
@@ -557,12 +841,94 @@ module mario_movem (
                                             NEXT_STATE = RUN_3_L;
                                         end
                                     else
-                                        NEXT_STATE = STAND;
+                                        NEXT_STATE = STAND_R;
+                                end
+                        end
+
+                    GLIDE_L:
+                        begin
+                            mario_x_motion_input = mario_x_motion;
+                            sr =  1'b0;
+                            sl =  1'b0;
+                            rr1 = 1'b0;
+                            rr2 = 1'b0; 
+                            rr3 = 1'b0; 
+                            rl1 = 1'b0; 
+                            rl2 = 1'b0; 
+                            rl3 = 1'b0; 
+                            jr =  1'b0; 
+                            jl =  1'b0;
+                            ir =  1'b0; 
+                            il =  1'b0; 
+                            gr =  1'b0;
+                            gl =  1'b1;
+                            di =  1'b0;
+                            if (mario_alive == 1'd0)
+                                begin
+                                    NEXT_STATE = DIE;
+                                    mario_x_motion_input = 10'd0;
+                                    mario_y_motion_input = ~(10'd15) + 1'd1;
+                                end
+                            else if (mario_x + mario_x_size >= mario_x_max)
+                                begin
+                                    mario_x_motion_input = 10'd0;
+                                end
+                            else if (mario_x <= process + 10'd0)
+                                begin
+                                    mario_x_motion_input = 10'd0;
+                                end
+                            else
+                                begin
+                                    if (mario_x_motion == 10'd0)
+                                        begin
+                                            NEXT_STATE = STAND_L;
+                                        end
+                                    else if (mario_x_motion == 10'd1)
+                                        begin
+                                            NEXT_STATE = RUN_1_R;
+                                        end
+                                    else if (mario_x_motion == 10'd2)
+                                        begin
+                                            NEXT_STATE = RUN_2_R;
+                                        end
+                                    else if (mario_x_motion == 10'd3)
+                                        begin
+                                            NEXT_STATE = RUN_3_R;
+                                        end
+                                    else if (mario_x_motion == (~10'd1) + 1'b1)
+                                        begin
+                                            NEXT_STATE = RUN_1_L;
+                                        end
+                                    else if (mario_x_motion == (~10'd2) + 1'b1)
+                                        begin
+                                            NEXT_STATE = RUN_2_L;
+                                        end
+                                    else if (mario_x_motion == (~10'd3) + 1'b1)
+                                        begin
+                                            NEXT_STATE = RUN_3_L;
+                                        end
+                                    else
+                                        NEXT_STATE = STAND_L;
                                 end
                         end
                     
                     DIE:
                         begin
+                            sr =  1'b0;
+                            sl =  1'b0;
+                            rr1 = 1'b0;
+                            rr2 = 1'b0; 
+                            rr3 = 1'b0; 
+                            rl1 = 1'b0; 
+                            rl2 = 1'b0; 
+                            rl3 = 1'b0; 
+                            jr =  1'b0; 
+                            jl =  1'b0;
+                            ir =  1'b0; 
+                            il =  1'b0; 
+                            gr =  1'b0;
+                            gl =  1'b0;
+                            di =  1'b1;
                             NEXT_STATE = DIE;
                             mario_y_motion_input = mario_y_motion + 1'd1;
                         end
@@ -570,6 +936,10 @@ module mario_movem (
                 endcase
                 
                 mario_x_pos_input = mario_x + mario_x_motion;
+                if (mario_x_pos_input >= mario_x_max)
+                    begin
+                        mario_x_pos_input = mario_x_max;
+                    end
                 if (mario_in_air || (STATE == DIE))
                     begin
                         mario_y_pos_input = mario_y + mario_y_motion;
@@ -588,10 +958,78 @@ endmodule
                 
 module mario_image (
         input Clk, Reset, frame_clk,
-        input logic w, s, a, d,
-        input logic [9:0] mario_x,
+        input [9:0] mario_x,
+        input sl, sr, rr1, rr2, rr3, rl1, rl2, rl3, jr, jl, ir, gr, gl, di,il,
+        input [23:0] mario_sl, mario_sr, mario_rl1, mario_rl2, mario_rl3, mario_rr1, mario_rr2, mario_rr3, mario_jr, mario_jl, mario_die,
         output [23:0] mario_pic_out
 );
-
-    assign mario_pic_out = 24'hff5500;
+always_ff @ (posedge Clk)
+    begin
+        if (sl == 1'b1)
+            begin
+                mario_pic_out = mario_sl;
+            end
+        else if (sr == 1'b1)
+            begin
+                mario_pic_out = mario_sr;
+            end
+        else if (rr1 == 1'b1)
+            begin
+                mario_pic_out = mario_rr1;
+            end
+        else if (rr2 == 1'b1)
+            begin
+                mario_pic_out = mario_rr2;
+            end
+        else if (rr3 == 1'b1)
+            begin
+                mario_pic_out = mario_rr3;
+            end
+        else if (rl1 == 1'b1)
+            begin
+                mario_pic_out = mario_rl1;
+            end
+        else if (rl2 == 1'b1)
+            begin
+                mario_pic_out = mario_rl2;
+            end
+        else if (rl3 == 1'b1)
+            begin
+                mario_pic_out = mario_rl3;
+            end
+        else if (jr == 1'b1)
+            begin
+                mario_pic_out = mario_jr;
+            end
+        else if (jl == 1'b1)
+            begin
+                mario_pic_out = mario_jl;
+            end
+        else if (ir == 1'b1)
+            begin
+                mario_pic_out = mario_jr;
+            end
+        else if (il == 1'b1)
+            begin
+                mario_pic_out = mario_jl;
+            end
+        else if (gr == 1'b1)
+            begin
+                mario_pic_out = mario_jr;
+            end
+        else if (gl == 1'b1)
+            begin
+                mario_pic_out = mario_jl;
+            end
+        else if (di == 1'b1)
+            begin
+                mario_pic_out = mario_die;
+            end
+        else
+            begin
+                mario_pic_out = mario_sr;
+            end
+        
+    end
+    
 endmodule
