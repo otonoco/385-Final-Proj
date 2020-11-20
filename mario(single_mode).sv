@@ -24,7 +24,7 @@ module mario_s (
 
     always_comb
     begin
-        if (mario_x <= process + DrawX && DrawX + process < mario_x + 10'd26 && DrawY >= mario_y && DrawY <= mario_y + 10'd32)
+        if (mario_x < process + DrawX && DrawX + process < mario_x + 10'd26 && DrawY > mario_y && DrawY < mario_y + 10'd32)
             begin
                 mario = 1'b1;
             end
@@ -62,7 +62,7 @@ module mario_movem (
 
     logic [23:0] mario_counter, mario_counter_in;
     logic flag, flag_in;
-
+	 logic i;
     always_comb
     begin
         if (mario_y + mario_y_motion >= 10'd384)
@@ -286,11 +286,11 @@ module mario_movem (
                                     NEXT_STATE = JUMP_R;
                                     flag_in = 1'b1;
                                 end
-                            else if (d && mario_counter[22])
+                            else if (d && mario_counter[3])
                                 begin
                                     NEXT_STATE = RUN_2_R;
                                 end
-                            else if (d && ~mario_counter[22])
+                            else if (d && ~mario_counter[3])
                                 begin
                                     NEXT_STATE = RUN_1_R;
                                     mario_counter_in = mario_counter + 24'b1;
@@ -340,11 +340,11 @@ module mario_movem (
                                     NEXT_STATE = JUMP_R;
                                     flag_in = 1'b1;
                                 end
-                            else if (d && mario_counter[22])
+                            else if (d && mario_counter[3])
                                 begin
                                     NEXT_STATE = RUN_3_R;
                                 end
-                            else if (d && ~mario_counter[22])
+                            else if (d && ~mario_counter[3])
                                 begin
                                     NEXT_STATE = RUN_2_R;
                                     mario_counter_in = mario_counter + 24'b1;
@@ -394,11 +394,11 @@ module mario_movem (
                                     NEXT_STATE = JUMP_R;
                                     flag_in = 1'b1;
                                 end
-                            else if (d && mario_counter[22])
+                            else if (d && mario_counter[3])
                                 begin
                                     NEXT_STATE = RUN_1_R;
                                 end
-                            else if (d && ~mario_counter[22])
+                            else if (d && ~mario_counter[3])
                                 begin
                                     NEXT_STATE = RUN_3_R;
                                     mario_counter_in = mario_counter + 24'b1;
@@ -448,11 +448,11 @@ module mario_movem (
                                     NEXT_STATE = JUMP_L;
                                     flag_in = 1'b1;
                                 end
-                            else if (a && mario_counter[22])
+                            else if (a && mario_counter[3])
                                 begin
                                     NEXT_STATE = RUN_2_L;
                                 end
-                            else if (a && ~mario_counter[22])
+                            else if (a && ~mario_counter[3])
                                 begin
                                     NEXT_STATE = RUN_1_L;
                                     mario_counter_in = mario_counter + 24'b1;
@@ -502,11 +502,11 @@ module mario_movem (
                                     NEXT_STATE = JUMP_L;
                                     flag_in = 1'b1;
                                 end
-                            else if (a && mario_counter[22]])
+                            else if (a && mario_counter[3])
                                 begin
                                     NEXT_STATE = RUN_3_L;
                                 end
-                            else if (a && ~mario_counter[22])
+                            else if (a && ~mario_counter[3])
                                 begin
                                     NEXT_STATE = RUN_2_L;
                                     mario_counter_in = mario_counter + 24'b1;
@@ -556,11 +556,11 @@ module mario_movem (
                                     NEXT_STATE = JUMP_L;
                                     flag_in = 1'b1;
                                 end
-                            else if (a && mario_counter[22])
+                            else if (a && mario_counter[3])
                                 begin
                                     NEXT_STATE = RUN_1_L;
                                 end
-                            else if (a && ~mario_counter[22])
+                            else if (a && ~mario_counter[3])
                                 begin
                                     NEXT_STATE = RUN_3_L;
                                     mario_counter_in = mario_counter + 24'b1;
