@@ -84,7 +84,7 @@ logic Reset_h, vssig, blank, sync, VGA_Clk;
 	
 	//Assign uSD CS to '1' to prevent uSD card from interfering with USB Host (if uSD card is plugged in)
 	assign ARDUINO_IO[6] = 1'b1;
-	
+	logic [23:0] mario_counter;
 	//HEX drivers to convert numbers to HEX output
 	// HexDriver hex_driver4 (hex_num_4, HEX4[6:0]);
 	// assign HEX4[7] = 1'b1;
@@ -103,32 +103,32 @@ logic Reset_h, vssig, blank, sync, VGA_Clk;
 	// assign HEX2 = {1'b1, ~signs[0], 3'b111, ~hundreds[0], ~hundreds[0], 1'b1};
 
     HexDriver hex0 (
-            .In(mario_sr[3:0]),
+            .In(mario_counter[3:0]),
             .Out(HEX0)
     );
 
     HexDriver hex1 (
-            .In(mario_sr[7:4]),
+            .In(mario_counter[7:4]),
             .Out(HEX1)
     );
 
     HexDriver hex2 (
-            .In(mario_sr[11:8]),
+            .In(mario_counter[11:8]),
             .Out(HEX2)
     );
 
     HexDriver hex3 (
-            .In(mario_sr[15:12]),
+            .In(mario_counter[15:12]),
             .Out(HEX3)
     );
 	
     HexDriver hex4 (
-            .In(mario_sr[19:16]),
+            .In(mario_counter[19:16]),
             .Out(HEX4)
     );
 
     HexDriver hex5 (
-            .In(mario_sr[23:20]),
+            .In(mario_counter[23:20]),
             .Out(HEX5)
     );
 	
@@ -188,25 +188,36 @@ logic Reset_h, vssig, blank, sync, VGA_Clk;
     logic mario, mario_in_air;
     logic [23:0] mario_pic_out;
     logic [23:0] mario_sr, mario_sl, mario_rr1, mario_rr2, mario_rr3, mario_rl1, mario_rl2, mario_rl3, mario_jr, mario_jl, mario_die,groundd; 
-
-    mario_s mmario(.Clk(Clk), .Reset(Reset_h), .frame_clk(VGA_VS), .DrawX(drawxsig), .DrawY(drawysig), .mario_alive(1'b1), .keycode(keycode), .mario_x(mario_x), .mario_y(mario_y), .process(process), .mario_y_motion(mario_y_motion), .mario(mario), .mario_in_air(mario_in_air), .mario_pic_out(mario_pic_out), .*);
-    color_mapper cm(.mario(mario), .mario_pic_out(mario_pic_out), .ground(groundd),.DrawX(drawxsig), .DrawY(drawysig), .Red(Red), .Green(Green), .Blue(Blue));
-
-    STAND_R stand_r(.Clk(Clk), .read_addr((drawxsig - mario_x + process)%26 + 26 * ((drawysig - mario_y)%32)), .data_out(mario_sr));
-    STAND_R stand_l(.Clk(Clk), .read_addr((10'd25 - drawxsig + mario_x - process)%26 + 26 * ((drawysig - mario_y)%32)), .data_out(mario_sl));
-    WR_1 walk_rigt_1(.Clk(Clk), .read_addr((drawxsig - mario_x + process)%26 + 26 * ((drawysig - mario_y)%32)), .data_out(mario_rr1));
-    WR_2 walk_rigt_2(.Clk(Clk), .read_addr((drawxsig - mario_x + process)%26 + 26 * ((drawysig - mario_y)%32)), .data_out(mario_rr2));
-    WR_3 walk_rigt_3(.Clk(Clk), .read_addr((drawxsig - mario_x + process)%26 + 26 * ((drawysig - mario_y)%32)), .data_out(mario_rr3));
-
-    WR_1 walk_left_1(.Clk(Clk), .read_addr((10'd25 - drawxsig + mario_x - process)%26 + 26 * ((drawysig - mario_y)%32)), .data_out(mario_rl1));
-    WR_2 walk_left_2(.Clk(Clk), .read_addr((10'd25 - drawxsig + mario_x - process)%26 + 26 * ((drawysig - mario_y)%32)), .data_out(mario_rl2));
-    WR_3 walk_left_3(.Clk(Clk), .read_addr((10'd25 - drawxsig + mario_x - process)%26 + 26 * ((drawysig - mario_y)%32)), .data_out(mario_rl3));
-
-    JR jump_rigt(.Clk(Clk), .read_addr((drawxsig - mario_x + process)%26 + 26 * ((drawysig - mario_y)%32)), .data_out(mario_jr));
-    JR jump_left(.Clk(Clk), .read_addr((10'd25 - drawxsig + mario_x - process)%26 + 26 * ((drawysig - mario_y)%32)), .data_out(mario_jl));
-
-    DEAD deadd(.Clk(Clk), .read_addr((drawxsig - mario_x + process)%26 + 26 * ((drawysig - mario_y)%32)), .data_out(mario_die));
 	 
-	BACKGROUND ground(.Clk(Clk),  .read_addr(drawxsig % 32 + 32* (drawysig%64)),  .data_out(groundd));
+    logic gomba_alive,gomba, gomba_dead;
+    logic [23:0] gomba_left, gomba_right,gomba_pic_out,gomba_deadp;
+    logic [9:0] gomba_x, gomba_y;
+    logic mario_dead,gomba_deadd;
     
+	gomba #(10'd0, 10'd639, 10'd400) gb(.Clk(Clk), .Reset(Reset_h), .frame_clk(VGA_VS),.gomba(gomba), .DrawX(drawxsig), .DrawY(drawysig), .mario_x(mario_x), .process(process),.gomba_alive(~gomba_dead),.gomba_left(gomba_left),.gomba_right(gomba_right), .gomba_deadp(gomba_deadp),.gomba_x(gomba_x), .gomba_y(gomba_y),.gomba_pic_out(gomba_pic_out));
+    gomba_r g_r(.Clk(VGA_Clk), .read_addr((drawxsig - mario_x + process)%32 + 32 * ((drawysig - mario_y)%32)), .data_out(gomba_right));
+    gomba_l g_l(.Clk(VGA_Clk), .read_addr((drawxsig - mario_x + process)%32 + 32 * ((drawysig - mario_y)%32)), .data_out(gomba_left));
+	gomba_dead gd(.Clk(VGA_Clk), .read_addr((drawxsig - mario_x + process)%32 + 32* ((drawysig - mario_y)%32)), .data_out(gomba_deadp));
+	collision col(.Clk(Clk), .Reset(Reset_h), .frame_Clk(VGA_VS), .mario_x(mario_x), .mario_y(mario_y),.gomba_x(gomba_x), .gomba_y(gomba_y),.mario_y_motion(mario_y_motion),  .mario_dead(mario_dead), .gomba_dead(gomba_dead));
+
+	 
+    mario_s mmario(.Clk(Clk), .Reset(Reset_h), .frame_clk(VGA_VS), .DrawX(drawxsig), .DrawY(drawysig), .mario_alive(~mario_dead), .keycode(keycode), .mario_x(mario_x), .mario_y(mario_y), .process(process), .mario_y_motion(mario_y_motion), .mario(mario), .mario_in_air(mario_in_air), .mario_pic_out(mario_pic_out), .*);
+    color_mapper cm(.mario(mario),.gomba(gomba) ,.mario_pic_out(mario_pic_out),.gomba_pic_out(gomba_pic_out), .ground(groundd),.DrawX(drawxsig), .DrawY(drawysig), .Red(Red), .Green(Green), .Blue(Blue));
+
+    STAND_R stand_r(.Clk(VGA_Clk), .read_addr((drawxsig - mario_x + process)%26 + 26 * ((drawysig - mario_y)%32)), .data_out(mario_sr));
+    STAND_R stand_l(.Clk(VGA_Clk), .read_addr((10'd25 - drawxsig + mario_x - process)%26 + 26 * ((drawysig - mario_y)%32)), .data_out(mario_sl));
+    WR_1 walk_rigt_1(.Clk(VGA_Clk), .read_addr((drawxsig - mario_x + process)%26 + 26 * ((drawysig - mario_y)%32)), .data_out(mario_rr1));
+    WR_2 walk_rigt_2(.Clk(VGA_Clk), .read_addr((drawxsig - mario_x + process)%26 + 26 * ((drawysig - mario_y)%32)), .data_out(mario_rr2));
+    WR_3 walk_rigt_3(.Clk(VGA_Clk), .read_addr((drawxsig - mario_x + process)%26 + 26 * ((drawysig - mario_y)%32)), .data_out(mario_rr3));
+
+    WR_1 walk_left_1(.Clk(VGA_Clk), .read_addr((10'd25 - drawxsig + mario_x - process)%26 + 26 * ((drawysig - mario_y)%32)), .data_out(mario_rl1));
+    WR_2 walk_left_2(.Clk(VGA_Clk), .read_addr((10'd25 - drawxsig + mario_x - process)%26 + 26 * ((drawysig - mario_y)%32)), .data_out(mario_rl2));
+    WR_3 walk_left_3(.Clk(VGA_Clk), .read_addr((10'd25 - drawxsig + mario_x - process)%26 + 26 * ((drawysig - mario_y)%32)), .data_out(mario_rl3));
+
+    JR jump_rigt(.Clk(VGA_Clk), .read_addr((drawxsig - mario_x + process)%26 + 26 * ((drawysig - mario_y)%32)), .data_out(mario_jr));
+    JR jump_left(.Clk(VGA_Clk), .read_addr((10'd25 - drawxsig + mario_x - process)%26 + 26 * ((drawysig - mario_y)%32)), .data_out(mario_jl));
+
+    DEAD deadd(.Clk(VGA_Clk), .read_addr((drawxsig - mario_x + process)%26 + 26 * ((drawysig - mario_y)%32)), .data_out(mario_die));
+	 
+	BACKGROUND ground(.Clk(VGA_Clk),  .read_addr(drawxsig % 32 + 32* (drawysig%64)),  .data_out(groundd));
 endmodule
