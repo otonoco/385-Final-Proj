@@ -45,26 +45,24 @@ module collision(
                             begin
                                 mario_dead_in = 1'b0;
                                 gomba_dead_in1 = 1'b0;
- //                               luigi_dead_in = 1'b0;
                             end
                     end
                 else
                     begin
                         mario_dead_in = 1'b0;
                         gomba_dead_in1 = 1'b0;
-  //                      luigi_dead_in = 1'b0;
                     end
             end
         else
             begin
                 mario_dead_in = mario_dead;
                 gomba_dead_in1 = gomba_dead;
- //               luigi_dead_in = luigi_dead;
             end
 		end
+
 	always_comb
-		begin
-		 gomba_dead_in2 = gomba_dead;
+	begin
+		gomba_dead_in2 = gomba_dead;
         luigi_dead_in = luigi_dead;
         if ((luigi_y < gomba_y + 10'd32) && (gomba_y < luigi_y + 10'd32))
             begin
@@ -82,19 +80,16 @@ module collision(
                             begin
                                 luigi_dead_in = 1'b0;
                                 gomba_dead_in2 = 1'b0;
- //                               mario_dead_in = 1'b0;
                             end
                     end
                 else
                     begin
                         luigi_dead_in = 1'b0;
                         gomba_dead_in2 = 1'b0;
-  //                      mario_dead_in = 1'b0;
                     end
             end
         else
             begin
- //               mario_dead_in = mario_dead;
                 gomba_dead_in2 = gomba_dead;
                 luigi_dead_in = luigi_dead;
             end

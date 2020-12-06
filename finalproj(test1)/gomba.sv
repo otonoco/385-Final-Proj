@@ -284,7 +284,6 @@ module gomba_movem #(parameter gomba_x_min = 10'd0;
                                     x_motion_input = 10'd2;
                                     y_motion_input = 10'd0;
                                     NEXT_STATE = RIGHT_1;
-      //                              gomba_counter = 24'b0;
                                     gomba_counter_in = 24'b0;
                                 end
                             else if (mario_at_right && ~gomba_counter[1])
@@ -343,7 +342,6 @@ module gomba_movem #(parameter gomba_x_min = 10'd0;
                                     y_motion_input = 10'd0;
                                     NEXT_STATE = LEFT_2;
                                     gomba_counter_in = 24'b0;
-    //                                gomba_counter = 24'b0;
                                 end
                             else if (mario_at_left && ~gomba_counter[1])
                                 begin
@@ -422,7 +420,6 @@ module gomba_movem #(parameter gomba_x_min = 10'd0;
                                     y_motion_input = 10'd0;
                                     NEXT_STATE = LEFT_1;
                                     gomba_counter_in = 24'b0;
-     //                               gomba_counter = 24'b0;
                                 end
                             else if (mario_at_left && ~gomba_counter[1])
                                 begin

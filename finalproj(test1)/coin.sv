@@ -4,11 +4,8 @@ module coin #(parameter coin_x_min = 10'd0;
         (
         input Reset, frame_clk, Clk,
         input [9:0] DrawX, DrawY,  
-        // input [9:0] mario_x,
-        // input [9:0] luigi_x,
         input process,
         input coin_alive,
-        // input [23:0] gomba_left, gomba_right,gomba_deadp,
         input [23:0] front, side, back,
         
         output logic coin,

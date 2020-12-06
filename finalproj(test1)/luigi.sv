@@ -15,7 +15,7 @@ module luigi_d (
     logic w, s, a, d;
     logic sl, sr, rr1, rr2, rr3, rl1, rl2, rl3, jr, jl, il, ir, gr, gl, di;
 
-     assign a = ((keycode[15:8] == 8'h50) | (keycode[7:0] == 8'h50)|(keycode[23:16] == 8'h50) | (keycode[31:24] == 8'h50));
+    assign a = ((keycode[15:8] == 8'h50) | (keycode[7:0] == 8'h50)|(keycode[23:16] == 8'h50) | (keycode[31:24] == 8'h50));
     assign d = ((keycode[15:8] == 8'h4F) | (keycode[7:0] == 8'h4F)|(keycode[23:16] == 8'h4F) | (keycode[31:24] == 8'h4F));
     assign w = ((keycode[15:8] == 8'h52) | (keycode[7:0] == 8'h52)|(keycode[23:16] == 8'h52) | (keycode[31:24] == 8'h52));
     assign s = ((keycode[15:8] == 8'h51) | (keycode[7:0] == 8'h51)|(keycode[23:16] == 8'h51) | (keycode[31:24] == 8'h51));
@@ -40,7 +40,7 @@ module luigi_movem (
         input Clk, Reset, frame_clk,
         input w, s, a, d,
         input luigi_alive,
-         input [9:0] mario_x, mario_y,
+        input [9:0] mario_x, mario_y,
         output logic [9:0] luigi_x, luigi_y, process, luigi_y_motion,
         output logic luigi_in_air,
         output logic sl, sr, rr1, rr2, rr3, rl1, rl2, rl3, jr, jl, il, ir, gr, gl, di

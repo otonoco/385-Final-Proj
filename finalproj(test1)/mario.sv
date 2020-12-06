@@ -42,7 +42,7 @@ module mario_movem (
         
         output logic [9:0] mario_x, mario_y, process, mario_y_motion,
         output logic mario_in_air,
-		  output logic [23:0] mario_counter,
+		output logic [23:0] mario_counter,
         output logic sl, sr, rr1, rr2, rr3, rl1, rl2, rl3, jr, jl, il, ir, gr, gl, di
 );
 
@@ -1161,7 +1161,6 @@ module mario_image (
                 begin
                     mario_pic_out = mario_sr;
                 end
-            
         end
     
 endmodule
