@@ -1,0 +1,308 @@
+//This is the Colour Mapper module.
+
+module  color_mapper (
+        input logic mario_alive,
+
+        //input logic kuribo_alive,
+
+        //input logic logo,
+        input logic mario,
+        //input logic coin,
+        input logic wall,
+        //input logic brick,
+        //input logic coin_block, //????
+        //input logic mushroom,
+        //input logic kuribo,
+        //input logic cloud,
+
+        input logic ground,
+        input logic walking,
+        input logic mario_walk,
+        //input logic kuribo_walk,
+        input logic big,
+
+        //input logic day,
+
+        input logic [9:0] mario_pic_addr,
+        //input logic [9:0] kuribo_pic_addr,
+        //input logic [9:0] coin_pic_addr,
+        //input logic [9:0] brick_pic_addr,
+        //input logic [9:0] mush_pic_addr,
+        input logic [9:0] wall_pic_addr,
+        //input logic [9:0] cloud_pic_addr,
+        input logic [9:0] DrawX, DrawY,
+        
+        output logic [7:0] Red, Green, Blue
+);
+
+    logic [7:0] VGA_R, VGA_G, VGA_B;
+    logic [23:0] logo_pic, 
+                 mario_pic_ground, mario_pic_walk_1, mario_pic_walk_2, mario_pic_jump,
+                 mario_pic_ground_big, mario_pic_walk_1_big, mario_pic_walk_2_big, mario_pic_jump_big, mario_dead,
+                 kuribo_pic_walk_1, kuribo_pic_walk_2,
+                 brick_pic, wall_pic,
+                 mushroom_pic,
+                 coin_pic,
+                 cloud_pic;
+    
+    assign VGA_B = Blue;
+    assign VGA_R = Red;
+    assign VGA_G = Green;
+
+    // initialize all pictures here
+    ram_tile_ground ground_tiles(.read_address(wall_pic_addr), .output_color(wall_pic));
+    ram_mario_still_right mario_still(.read_address(mario_pic_addr), .output_color(mario_pic_ground));
+    ram_mario_jump_right mario_jump(.read_address(mario_pic_addr), .output_color(mario_pic_jump));
+    ram_mario_walk_right_1 mario_walk_1(.read_address(mario_pic_addr), .output_color(mario_pic_walk_1));
+    ram_mario_walk_right_2 mario_walk_2(.read_address(mario_pic_addr), .output_color(mario_pic_walk_2));
+    ram_mario_dead dead(.read_address(mario_pic_addr), .output_color(mario_dead));
+
+    always_comb
+    begin
+        if (mario)
+            begin 
+                if (mario_alive)
+                    // begin
+                    //     if (big)
+                    //         begin
+                    //             if (ground)
+                    //                 begin
+                    //                     if (walking)
+                    //                         begin
+                    //                             if (mario_walk == 1'b0)
+                    //                                 begin
+                    //                                     VGA_B = mario_pic_walk_1_big[7:0];
+                    //                                     VGA_G = mario_pic_walk_1_big[15:8];
+                    //                                     VGA_R = mario_pic_walk_1_big[23:16];
+                    //                                 end
+                    //                             else
+                    //                                 begin
+                    //                                     VGA_B = mario_pic_walk_2_big[7:0];
+                    //                                     VGA_G = mario_pic_walk_2_big[15:8];
+                    //                                     VGA_R = mario_pic_walk_2_big[23:16];
+                    //                                 end
+                    //                         end
+                    //                     else
+                    //                         begin
+                    //                             VGA_B = mario_pic_ground_big[7:0];
+                    //                             VGA_G = mario_pic_ground_big[15:8];
+                    //                             VGA_R = mario_pic_ground_big[23:16];
+                    //                         end
+                    //                 end
+                    //             else
+                    //                 begin
+                    //                     VGA_B = mario_pic_jump_big[7:0];
+                    //                     VGA_G = mario_pic_jump_big[15:8];
+                    //                     VGA_R = mario_pic_jump_big[23:16];
+                    //                 end
+                    //         end
+                    //     else
+                            begin
+                                if (ground)
+                                    begin
+                                        if (walking)
+                                            begin
+                                                if (mario_walk == 1'b0)
+                                                    begin
+                                                        VGA_B = mario_pic_walk_1[7:0];
+                                                        VGA_G = mario_pic_walk_1[15:8];
+                                                        VGA_R = mario_pic_walk_1[23:16];
+                                                    end
+                                                else
+                                                    begin
+                                                        VGA_B = mario_pic_walk_2[7:0];
+                                                        VGA_G = mario_pic_walk_2[15:8];
+                                                        VGA_R = mario_pic_walk_2[23:16];
+                                                    end
+                                            end
+                                        else
+                                            begin
+                                                VGA_B = mario_pic_ground[7:0];
+                                                VGA_G = mario_pic_ground[15:8];
+                                                VGA_R = mario_pic_ground[23:16];
+                                            end
+                                    end
+                                else
+                                    begin
+                                        VGA_B = mario_pic_jump[7:0];
+                                        VGA_G = mario_pic_jump[15:8];
+                                        VGA_R = mario_pic_jump[23:16];
+                                    end
+                            end
+                    
+                else
+                    begin
+                        VGA_B = mario_dead[7:0];
+                        VGA_G = mario_dead[15:8];
+                        VGA_R = mario_dead[23:16];
+                    end
+            end
+        else if (wall)
+            begin
+                VGA_B = wall_pic[7:0];
+                VGA_G = wall_pic[15:8];
+                VGA_R = wall_pic[23:16];
+            end
+        else
+            begin
+                VGA_B = 8'hC5;
+                VGA_G = 8'h8A;
+                VGA_R = 8'h00;
+            end
+
+
+
+        // if (logo)
+        //     begin
+        //         VGA_B = logo_pic[7:0];
+        //         VGA_G = logo_pic[15:8];
+        //         VGA_R = logo_pic[23:16];
+        //     end
+        // else if (mario)
+        //     begin 
+        //         if (mario_alive)
+        //             begin
+        //                 if (big)
+        //                     begin
+        //                         if (ground)
+        //                             begin
+        //                                 if (walking)
+        //                                     begin
+        //                                         if (mario_walk == 1'b0)
+        //                                             begin
+        //                                                 VGA_B = mario_pic_walk_1_big[7:0];
+        //                                                 VGA_G = mario_pic_walk_1_big[15:8];
+        //                                                 VGA_R = mario_pic_walk_1_big[23:16];
+        //                                             end
+        //                                         else
+        //                                             begin
+        //                                                 VGA_B = mario_pic_walk_2_big[7:0];
+        //                                                 VGA_G = mario_pic_walk_2_big[15:8];
+        //                                                 VGA_R = mario_pic_walk_2_big[23:16];
+        //                                             end
+        //                                     end
+        //                                 else
+        //                                     begin
+        //                                         VGA_B = mario_pic_ground_big[7:0];
+        //                                         VGA_G = mario_pic_ground_big[15:8];
+        //                                         VGA_R = mario_pic_ground_big[23:16];
+        //                                     end
+        //                             end
+        //                         else
+        //                             begin
+        //                                 VGA_B = mario_pic_jump_big[7:0];
+        //                                 VGA_G = mario_pic_jump_big[15:8];
+        //                                 VGA_R = mario_pic_jump_big[23:16];
+        //                             end
+        //                     end
+        //                 else
+        //                     begin
+        //                         if (ground)
+        //                             begin
+        //                                 if (walking)
+        //                                     begin
+        //                                         if (mario_walk == 1'b0)
+        //                                             begin
+        //                                                 VGA_B = mario_pic_walk_1[7:0];
+        //                                                 VGA_G = mario_pic_walk_1[15:8];
+        //                                                 VGA_R = mario_pic_walk_1[23:16];
+        //                                             end
+        //                                         else
+        //                                             begin
+        //                                                 VGA_B = mario_pic_walk_2[7:0];
+        //                                                 VGA_G = mario_pic_walk_2[15:8];
+        //                                                 VGA_R = mario_pic_walk_2[23:16];
+        //                                             end
+        //                                     end
+        //                                 else
+        //                                     begin
+        //                                         VGA_B = mario_pic_ground[7:0];
+        //                                         VGA_G = mario_pic_ground[15:8];
+        //                                         VGA_R = mario_pic_ground[23:16];
+        //                                     end
+        //                             end
+        //                         else
+        //                             begin
+        //                                 VGA_B = mario_pic_jump[7:0];
+        //                                 VGA_G = mario_pic_jump[15:8];
+        //                                 VGA_R = mario_pic_jump[23:16];
+        //                             end
+        //                     end
+        //             end
+        //         else:
+        //             begin
+        //                 VGA_B = mario_dead[7:0];
+        //                 VGA_G = mario_dead[15:8];
+        //                 VGA_R = mario_dead[23:16];
+        //             end
+        //     end
+        // else if (kuribo)
+        //     begin
+        //         if (kuribo_alive)
+        //             begin
+        //                 if (kuribo_walk == 1'b0)
+        //                     begin
+        //                         VGA_B = kuribo_pic_walk_1[7:0];
+        //                         VGA_G = kuribo_pic_walk_1[15:8];
+        //                         VGA_R = kuribo_pic_walk_1[23:16];
+        //                     end
+        //                 else
+        //                     begin
+        //                         VGA_B = kuribo_pic_walk_2[7:0];
+        //                         VGA_G = kuribo_pic_walk_2[15:8];
+        //                         VGA_R = kuribo_pic_walk_2[23:16];
+        //                     end
+        //             end
+        //         else
+        //             begin
+        //                 // IF KURIBO IS DEAD??
+        //             end
+        //     end
+        // else if (cloud)
+        //     begin
+        //         VGA_B = cloud_pic[7:0];
+        //         VGA_G = cloud_pic[15:8];
+        //         VGA_R = cloud_pic[23:16];
+        //     end
+        // else if (coin)
+        //     begin
+        //         VGA_B = coin_pic[7:0];
+        //         VGA_G = coin_pic[15:8];
+        //         VGA_R = coin_pic[23:16];
+        //     end
+        // else if (brick)
+        //     begin
+        //         VGA_B = brick_pic[7:0];
+        //         VGA_G = brick_pic[15:8];
+        //         VGA_R = brick_pic[23:16];
+        //     end
+        // else if (wall)
+        //     begin
+        //         VGA_B = wall_pic[7:0];
+        //         VGA_G = wall_pic[15:8];
+        //         VGA_R = wall_pic[23:16];
+        //     end
+        // else if (mushroom)
+        //     begin
+        //         VGA_B = mushroom_pic[7:0];
+        //         VGA_G = mushroom_pic[15:8];
+        //         VGA_R = mushroom_pic[23:16];
+        //     end
+        // else
+        //     begin
+        //         if (day)
+        //             begin
+        //                 VGA_B = 8'hC5;
+        //                 VGA_G = 8'h8A;
+        //                 VGA_R = 8'h00;
+        //             end
+        //         else
+        //             begin
+        //                 VGA_B = 8'h00;
+        //                 VGA_G = 8'h00;
+        //                 VGA_R = 8'h00;
+        //             end
+        //     end
+    end
+
+endmodule

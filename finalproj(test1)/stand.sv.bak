@@ -1,0 +1,20 @@
+module STAND (
+        input [18:0] read_addr,
+        input Clk,
+
+        output logic [23:0] data_out;
+)
+logic [23:0] stand [0:1023];
+
+initial
+begin
+	 $readmemh("stand.txt", stand);
+end
+
+
+always_ff @ (posedge Clk) begin
+
+	data_Out<= stand[read_address];
+end
+
+endmodule

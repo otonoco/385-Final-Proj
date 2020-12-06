@@ -1,0 +1,381 @@
+module gomba #(parameter gomba_x_min = 10'd0;
+               parameter gomba_x_max = 10'd639;
+               parameter gomba_x_ori = 10'd400)
+        (
+        input Reset, frame_clk, Clk,
+        input [9:0] DrawX, DrawY,  
+        input [9:0] mario_x,
+        input process,
+        input gomba_alive,
+        input [23:0] gomba_left, gomba_right,gomba_deadp,
+        
+        output logic gomba,
+        output logic [9:0] gomba_x, gomba_y,
+        output logic [23:0] gomba_pic_out
+);
+
+    logic left_foot1, left_foot2, right_foot1, right_foot2, dead;
+    gomba_image g_i(.*);
+    gomba_movem g_m(.*);
+
+    always_comb
+    begin
+        if (gomba_x < process + DrawX && DrawX + process < gomba_x + 10'd32 && DrawY > gomba_y && DrawY < gomba_y + 10'd32)
+            begin
+                gomba = 1'b1;
+            end
+        else
+            gomba = 1'b0;
+    end
+endmodule 
+
+
+module gomba_movem #(parameter gomba_x_min = 10'd0;
+                     parameter gomba_x_max = 10'd639;
+                     parameter gomba_x_ori = 10'd400)
+        (
+        input Reset, frame_clk, Clk, gomba_alive,
+        input [9:0] mario_x,
+        output logic [9:0] gomba_x, gomba_y,
+        output logic left_foot1, left_foot2, right_foot1, right_foot2, dead
+);
+    parameter [9:0] x_ori = gomba_x_ori;
+    parameter [9:0] y_ori = 384;
+
+    parameter [9:0] x_min = gomba_x_min;
+    parameter [9:0] x_max = gomba_x_max;
+    parameter [9:0] y_min = 0;
+    parameter [9:0] y_max = 479;
+    parameter [9:0] x_step = 2;
+
+    parameter [9:0] x_size = 32;
+
+    logic [9:0] x_motion, y_motion, x_motion_input, y_motion_input, gomba_x_pos_input, gomba_y_pos_input;
+    logic lf1_in, rf1_in, dd_in, lf2_in, rf2_in;
+    logic [23:0] gomba_counter, gomba_counter_in;
+    logic [23:0] counter2, counter2_in;
+
+    logic mario_at_left, mario_at_right;
+
+    enum logic [3:0] {LEFT_1,
+                      LEFT_2,
+                      RIGHT_1,
+                      RIGHT_2,
+                      DIE} STATE, NEXT_STATE;
+    
+    logic frame_clk_delayed, frame_clk_rising_edge;
+    always_ff @ (posedge Clk) 
+    begin
+        frame_clk_delayed <= frame_clk;
+        frame_clk_rising_edge <= (frame_clk == 1'b1) && (frame_clk_delayed == 1'b0);
+    end
+
+    always_ff @ (posedge Clk)
+    begin
+        if (Reset)
+            begin
+                gomba_x <= x_ori;
+                gomba_y <= y_ori;
+                x_motion <= 10'd0;
+                y_motion <= 10'd0;
+                left_foot1 <= 1'b1;
+                left_foot2 <= 1'b0;
+                right_foot1 <= 1'b0;
+                right_foot2 <= 1'b0;
+                dead <= 1'b0;
+                STATE <= LEFT_1;
+                gomba_counter <= 24'd0;
+                counter2 <= 24'b0;
+            end
+        else if (dead)
+            begin
+                gomba_x <= 10'd0;
+                gomba_y <= 10'd0;
+                x_motion <= 10'd0;
+                y_motion <= 10'd0;
+            end
+        else
+            begin
+                gomba_x <= gomba_x_pos_input;
+                gomba_y <= gomba_y_pos_input;
+                x_motion <= x_motion_input;
+                y_motion <= y_motion_input;
+                STATE <= NEXT_STATE;
+                gomba_counter <= gomba_counter_in;
+                counter2 <= counter2_in;
+                left_foot1 <= lf1_in;
+                left_foot2 <= lf2_in;
+                right_foot1 <= rf1_in;
+                right_foot2 <= rf2_in;
+                dead <= dd_in;
+            end
+    end
+
+    always_comb
+    begin
+        if (mario_x < gomba_x)
+            begin
+                mario_at_left = 1'b1;
+                mario_at_right = 1'b0;
+            end
+        else
+            begin
+                mario_at_left = 1'b0;
+                mario_at_right = 1'b1;
+            end
+    end
+
+    always_comb
+    begin
+        gomba_x_pos_input = gomba_x;
+        gomba_y_pos_input = gomba_y;
+        x_motion_input = x_motion;
+        y_motion_input = y_motion;
+        NEXT_STATE = STATE;
+        gomba_counter_in = gomba_counter;
+        counter2_in = counter2;
+        if (frame_clk_rising_edge)
+            begin
+                unique case (STATE)
+                    default:
+                        begin
+                            lf1_in = 1'b0;
+                            lf2_in = 1'b0;
+                            rf1_in = 1'b0;
+                            rf2_in = 1'b0;
+                            dd_in = 1'b0;
+                        end
+
+                    LEFT_1:
+                        begin
+                            lf1_in = 1'b1;
+                            lf2_in = 1'b0;
+                            rf1_in = 1'b0;
+                            rf2_in = 1'b0;
+                            dd_in = 1'b0;
+                            if (gomba_alive == 1'b0)
+                                begin
+                                    NEXT_STATE = DIE;
+                                    x_motion_input = 10'd0;
+                                    y_motion_input = 10'd0;
+                                end
+                            else if (gomba_x <= x_min)
+                                begin
+                                    x_motion_input = x_step;
+                                    y_motion_input = 10'd0;
+                                    NEXT_STATE = RIGHT_2;
+                                end
+                            else if (gomba_x + x_size >= x_max)
+                                begin
+                                    x_motion_input = ~(10'd2) + 10'd1;
+                                    y_motion_input = 10'd0;
+                                    NEXT_STATE = LEFT_2;
+                                end
+                            else if (mario_at_left)
+                                begin
+                                    x_motion_input = ~(10'd2) + 10'd1;
+                                    y_motion_input = 10'd0;
+                                    NEXT_STATE = LEFT_2;
+                                end
+                            else if (mario_at_right)
+                                begin
+                                    x_motion_input = 10'd2;
+                                    y_motion_input = 10'd0;
+                                    NEXT_STATE = RIGHT_2;
+                                end
+                            else
+                                begin
+                                    x_motion_input = ~(10'd2) + 10'd1;
+                                    y_motion_input = 10'd0;
+                                    NEXT_STATE = LEFT_2;
+                                end
+                        end
+
+                    LEFT_2:
+                        begin
+                            lf1_in = 1'b0;
+                            lf2_in = 1'b1;
+                            rf1_in = 1'b0;
+                            rf2_in = 1'b0;
+                            dd_in = 1'b0;
+                            if (gomba_alive == 1'b0)
+                                begin
+                                    NEXT_STATE = DIE;
+                                    x_motion_input = 10'd0;
+                                    y_motion_input = 10'd0;
+                                end
+                            else if (gomba_x <= x_min)
+                                begin
+                                    x_motion_input = x_step;
+                                    y_motion_input = 10'd0;
+                                    NEXT_STATE = RIGHT_1;
+                                end
+                            else if (gomba_x + x_size >= x_max)
+                                begin
+                                    x_motion_input = ~(10'd2) + 10'd1;
+                                    y_motion_input = 10'd0;
+                                    NEXT_STATE = LEFT_1;
+                                end
+                            else if (mario_at_left)
+                                begin
+                                    x_motion_input = ~(10'd2) + 10'd1;
+                                    y_motion_input = 10'd0;
+                                    NEXT_STATE = LEFT_1;
+                                end
+                            else if (mario_at_right)
+                                begin
+                                    x_motion_input = 10'd2;
+                                    y_motion_input = 10'd0;
+                                    NEXT_STATE = RIGHT_1;
+                                end
+                            else
+                                begin
+                                    x_motion_input = ~(10'd2) + 10'd1;
+                                    y_motion_input = 10'd0;
+                                    NEXT_STATE = LEFT_1;
+                                end
+                        end
+
+                    RIGHT_1:
+                        begin
+                            lf1_in = 1'b0;
+                            lf2_in = 1'b0;
+                            rf1_in = 1'b1;
+                            rf2_in = 1'b0;
+                            dd_in = 1'b0;
+                            if (gomba_alive == 1'b0)
+                                begin
+                                    NEXT_STATE = DIE;
+                                    x_motion_input = 10'd0;
+                                    y_motion_input = 10'd0;
+                                end
+                            else if (gomba_x <= x_min)
+                                begin
+                                    x_motion_input = x_step;
+                                    y_motion_input = 10'd0;
+                                    NEXT_STATE = RIGHT_2;
+                                end
+                            else if (gomba_x + x_size >= x_max)
+                                begin
+                                    x_motion_input = ~(10'd2) + 10'd1;
+                                    y_motion_input = 10'd0;
+                                    NEXT_STATE = LEFT_2;
+                                end
+                            else if (mario_at_left)
+                                begin
+                                    x_motion_input = ~(10'd2) + 10'd1;
+                                    y_motion_input = 10'd0;
+                                    NEXT_STATE = LEFT_2;
+                                end
+                            else if (mario_at_right)
+                                begin
+                                    x_motion_input = 10'd2;
+                                    y_motion_input = 10'd0;
+                                    NEXT_STATE = RIGHT_2;
+                                end
+                            else
+                                begin
+                                    x_motion_input = 10'd2;
+                                    y_motion_input = 10'd0;
+                                    NEXT_STATE = RIGHT_2;
+                                end
+                        end
+                        
+                    RIGHT_2:
+                        begin
+                            lf1_in = 1'b0;
+                            lf2_in = 1'b0;
+                            rf1_in = 1'b0;
+                            rf2_in = 1'b1;
+                            dd_in = 1'b0;
+                            if (gomba_alive == 1'b0)
+                                begin
+                                    NEXT_STATE = DIE;
+                                    x_motion_input = 10'd0;
+                                    y_motion_input = 10'd0;
+                                end
+                            else if (gomba_x <= x_min)
+                                begin
+                                    x_motion_input = x_step;
+                                    y_motion_input = 10'd0;
+                                    NEXT_STATE = RIGHT_1;
+                                end
+                            else if (gomba_x + x_size >= x_max)
+                                begin
+                                    x_motion_input = ~(10'd2) + 10'd1;
+                                    y_motion_input = 10'd0;
+                                    NEXT_STATE = LEFT_1;
+                                end
+                            else if (mario_at_left)
+                                begin
+                                    x_motion_input = ~(10'd2) + 10'd1;
+                                    y_motion_input = 10'd0;
+                                    NEXT_STATE = LEFT_1;
+                                end
+                            else if (mario_at_right)
+                                begin
+                                    x_motion_input = 10'd2;
+                                    y_motion_input = 10'd0;
+                                    NEXT_STATE = RIGHT_1;
+                                end
+                            else
+                                begin
+                                    x_motion_input = 10'd2;
+                                    y_motion_input = 10'd0;
+                                    NEXT_STATE = RIGHT_1;
+                                end
+                        end
+                    DIE:
+                        begin
+                            lf1_in = 1'b0;
+                            lf2_in = 1'b0;
+                            rf1_in = 1'b0;
+                            rf2_in = 1'b0;
+                            dd_in = 1'b1;
+                            NEXT_STATE = DIE;
+                            y_motion_input = y_motion;
+                        end
+                endcase
+                gomba_x_pos_input = gomba_x + x_motion;
+                gomba_y_pos_input = gomba_y + y_motion;
+                if (gomba_x_pos_input >= gomba_x_max)
+                    gomba_x_pos_input = gomba_x_max;
+            end
+        else 
+            begin
+                lf1_in = left_foot1;
+                lf2_in = left_foot2;
+                rf1_in = right_foot1;
+                rf2_in = right_foot2;
+                dd_in = dead;
+            end
+    end
+endmodule
+
+module gomba_image(
+        input Clk, Reset, frame_clk,
+        input left_foot1, left_foot2, right_foot1, right_foot2, dead,
+        input [9:0] gomba_x,
+        input [23:0] gomba_left, gomba_right,gomba_deadp,
+        output [23:0] gomba_pic_out
+);
+    always_ff @ (posedge Clk)
+        begin
+            if (left_foot1 || right_foot1)
+                begin
+                    gomba_pic_out = gomba_left;
+                end
+            else if (left_foot2 || right_foot2)
+                begin
+                    gomba_pic_out = gomba_right;
+                end
+				else if(dead)
+				begin
+						gomba_pic_out = gomba_deadp;
+						end
+            else
+                begin
+                    gomba_pic_out = gomba_left;
+                end
+        end
+endmodule

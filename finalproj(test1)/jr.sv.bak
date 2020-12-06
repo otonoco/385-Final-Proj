@@ -1,0 +1,21 @@
+module JR (
+        input [18:0] read_addr,
+        input Clk,
+
+        output logic [23:0] data_out
+);
+
+    logic [23:0] walk_left [0:831];
+
+    initial
+    begin
+        $readmemh("mario_jp.txt", walk_left);
+    end
+
+
+    always_ff @ (posedge Clk) begin
+
+        data_out <= walk_left[read_addr];
+    end
+
+endmodule
