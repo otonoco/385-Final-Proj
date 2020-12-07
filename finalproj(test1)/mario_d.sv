@@ -50,7 +50,7 @@ module mariod_movem (
     parameter [9:0] mariod_y_ori = 400;
 
     parameter [9:0] mariod_x_min = 0;
-    parameter [9:0] mariod_x_max = 639;
+    parameter [9:0] mariod_x_max = 1023;
     parameter [9:0] mariod_y_min = 0;
     parameter [9:0] mariod_y_max = 479;
     parameter [9:0] mariod_x_step = 2;
@@ -519,6 +519,10 @@ module mariod_movem (
                                 begin
                                     mariod_x_motion_input = 10'd0;
                                 end
+                            if (mariod_x <= process + 10'd1) 
+                                begin
+                                    mariod_x_motion_input = 10'd0;
+                                end
                             if (~w)
                                 begin
                                     flag_in = 1'b0;
@@ -583,6 +587,10 @@ module mariod_movem (
                                 begin
                                     mariod_x_motion_input = 10'd0;
                                 end
+                            if (mariod_x <= process + 10'd1) 
+                                begin
+                                    mariod_x_motion_input = 10'd0;
+                                end
                             if (~w)
                                 begin
                                     flag_in = 1'b0;
@@ -644,6 +652,10 @@ module mariod_movem (
                             gl_in  = 1'b0;
                             di_in  = 1'b0;
                             if (mariod_x + mariod_x_motion <= 10'd1)
+                                begin
+                                    mariod_x_motion_input = 10'd0;
+                                end
+                            if (mariod_x <= process + 10'd1) 
                                 begin
                                     mariod_x_motion_input = 10'd0;
                                 end
@@ -869,6 +881,10 @@ module mariod_movem (
                                                 begin
                                                     mariod_y_motion_input = (~mariod_y_motion) + 10'd1;
                                                 end
+                                            if (mariod_x <= process + 10'd1) 
+                                                begin
+                                                    mariod_x_motion_input = 10'd0;
+                                                end
                                         end
                                     else
                                         begin
@@ -921,10 +937,10 @@ module mariod_movem (
                                 begin
                                     mariod_x_motion_input = 10'd0;
                                 end
-                            else if (mariod_x <= process + 10'd0)
-                                begin
-                                    mariod_x_motion_input = 10'd0;
-                                end
+                            // else if (mariod_x <= process + 10'd0)
+                            //     begin
+                            //         mariod_x_motion_input = 10'd0;
+                            //     end
                             else
                                 begin
                                     if (mariod_x_motion == 10'd0)
@@ -988,7 +1004,7 @@ module mariod_movem (
                                 begin
                                     mariod_x_motion_input = 10'd0;
                                 end
-                            else if (mariod_x <= process + 10'd0)
+                            else if (mariod_x <= process + 10'd1)
                                 begin
                                     mariod_x_motion_input = 10'd0;
                                 end
@@ -1066,10 +1082,33 @@ module mariod_movem (
                     begin
                         mariod_y_pos_input = level;
                     end
-                if ((mariod_x_pos_input + 10'd26 > luigi_x) && (luigi_x + 10'd26 > mariod_x_pos_input) && (mariod_y_pos_input + 10'd32 > luigi_y) && (luigi_y + 10'd32 > mariod_y_pos_input))
+                if (mariod_x >= process + 10'd320)
                     begin
-                        mariod_x_pos_input = mariod_x;
-                        mariod_y_pos_input = mariod_y;
+                        if (mariod_x_motion[9] == 1'b0)
+                            begin
+                                process_input = process + mariod_x_motion;
+                            end
+                    end
+                if (process + 10'd640 >= mariod_x_max)
+                    begin
+                        process_input = process;
+                    end
+                if ((mariod_x_pos_input + 10'd26 > luigi_x) && (luigi_x + 10'd26 > mariod_x_pos_input))
+                    begin
+                        if (mariod_y_pos_input == luigi_y)
+                            begin
+                                mariod_x_pos_input = luigi_x;
+                            end
+                        else if (mariod_y_pos_input + 10'd32 == luigi_y)
+                            begin
+                                mariod_y_pos_input = luigi_y - 10'd32;
+                            end
+                        else
+                            begin
+                                mariod_x_pos_input = mariod_x_pos_input;
+                                mariod_y_pos_input = mariod_y_pos_input;
+                            end
+                        
                     end
             end
         else
