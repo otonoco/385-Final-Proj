@@ -222,16 +222,15 @@ module luigi_movem (
                             gr_in  = 1'b0;
                             gl_in  = 1'b0;
                             di_in  = 1'b0;
+                            if (luigi_x <= process_from_mario)
+                                begin
+                                    at_edge_in = 1'b1;
+                                end
                             if (luigi_alive == 1'b0)
                                 begin
                                     NEXT_STATE = DIE;
                                     luigi_x_motion_input = 10'd0;
                                     luigi_y_motion_input = ~(10'd15) + 1'd1;
-                                end
-                            else if (luigi_x <= process_from_mario)
-                                begin
-                                    at_edge_in = 1'b1;
-                                    NEXT_STATE = STAND_R;
                                 end
                             else if (w && ~flag)
                                 begin
@@ -282,16 +281,15 @@ module luigi_movem (
                             gr_in  = 1'b0;
                             gl_in  = 1'b0;
                             di_in  = 1'b0;
+                            if (luigi_x <= process_from_mario)
+                                begin
+                                    at_edge_in = 1'b1;
+                                end
                             if (luigi_alive == 1'b0)
                                 begin
                                     NEXT_STATE = DIE;
                                     luigi_x_motion_input = 10'd0;
                                     luigi_y_motion_input = ~(10'd15) + 1'd1;
-                                end
-                            else if (luigi_x <= process_from_mario)
-                                begin
-                                    at_edge_in = 1'b1;
-                                    NEXT_STATE = STAND_L;
                                 end
                             else if (w && ~flag)
                                 begin
