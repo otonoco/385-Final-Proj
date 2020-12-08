@@ -341,7 +341,7 @@ module luigi_movem (
                             di_in  = 1'b0;
                             if (luigi_x + luigi_x_size >= process_from_mario + 10'd640)
                                 begin
-                                    luigi_x_motion_input = 10'd0;
+                                    luigi_x_motion_input = 10'd2;
                                 end
                             if (~w)
                                 begin
@@ -406,7 +406,7 @@ module luigi_movem (
                             di_in  = 1'b0;
                             if (luigi_x + luigi_x_size >= process_from_mario + 10'd640)
                                 begin
-                                    luigi_x_motion_input = 10'd0;
+                                    luigi_x_motion_input = 10'd2;
                                 end
                             if (~w)
                                 begin
@@ -471,7 +471,7 @@ module luigi_movem (
                             di_in  = 1'b0;
                             if (luigi_x + luigi_x_size >= process_from_mario + 10'd640)
                                 begin
-                                    luigi_x_motion_input = 10'd0;
+                                    luigi_x_motion_input = 10'd2;
                                 end
                             if (~w)
                                 begin
@@ -937,13 +937,7 @@ module luigi_movem (
                             gr_in  = 1'b1;
                             gl_in  = 1'b0;
                             di_in  = 1'b0;
-                            if (luigi_alive == 1'd0)
-                                begin
-                                    NEXT_STATE = DIE;
-                                    luigi_x_motion_input = 10'd0;
-                                    luigi_y_motion_input = ~(10'd15) + 1'd1;
-                                end
-                            else if (luigi_x + luigi_x_size >= process_from_mario + 10'd640)
+                            if (luigi_x + luigi_x_size >= process_from_mario + 10'd640)
                                 begin
                                     luigi_x_motion_input = 10'd0;
                                 end
@@ -951,6 +945,12 @@ module luigi_movem (
                                 begin
                                     luigi_x_motion_input = 10'd0;
                                     at_edge_in = 1'b1;
+                                end
+                            if (luigi_alive == 1'd0)
+                                begin
+                                    NEXT_STATE = DIE;
+                                    luigi_x_motion_input = 10'd0;
+                                    luigi_y_motion_input = ~(10'd15) + 1'd1;
                                 end
                             else
                                 begin
@@ -1006,20 +1006,20 @@ module luigi_movem (
                             gr_in  = 1'b0;
                             gl_in  = 1'b1;
                             di_in  = 1'b0;
+                            if (luigi_x + luigi_x_size >= process_from_mario + 10'd640)
+                                begin
+                                    luigi_x_motion_input = 10'd0;
+                                end
+                            else if (luigi_x <= process_from_mario)
+                                begin
+                                    luigi_x_motion_input = 10'd0;
+                                    at_edge_in = 1'b1;
+                                end
                             if (luigi_alive == 1'd0)
                                 begin
                                     NEXT_STATE = DIE;
                                     luigi_x_motion_input = 10'd0;
                                     luigi_y_motion_input = ~(10'd15) + 1'd1;
-                                end
-                            else if (luigi_x + luigi_x_size >= process_from_mario + 10'd640)
-                                begin
-                                    luigi_x_motion_input = 10'd0;
-                                    at_edge_in = 1'b1;
-                                end
-                            else if (luigi_x <= process_from_mario)
-                                begin
-                                    luigi_x_motion_input = 10'd0;
                                 end
                             else
                                 begin
