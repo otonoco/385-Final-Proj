@@ -13,7 +13,10 @@ module gomba #(parameter gomba_x_min = 10'd0;
         output logic [9:0] gomba_x, gomba_y,
         output logic [23:0] gomba_pic_out
 );
-
+    logic [9:0] x_min_, x_max_, x_ori_;
+    assign x_min_ = gomba_x_min;
+    assign x_max_ = gomba_x_max;
+    assign x_ori_ = gomba_x_ori;
     logic left_foot1, left_foot2, right_foot1, right_foot2, dead, disappear;
     gomba_image g_i(.*);
     gomba_movem g_m(.*);
@@ -30,20 +33,18 @@ module gomba #(parameter gomba_x_min = 10'd0;
 endmodule 
 
 
-module gomba_movem #(parameter gomba_x_min = 10'd0;
-                     parameter gomba_x_max = 10'd639;
-                     parameter gomba_x_ori = 10'd400)
-        (
+module gomba_movem (
         input Reset, frame_clk, Clk, gomba_alive,
         input [9:0] mario_x,
+        input [9:0] x_min_, x_max_, x_ori_,
         output logic [9:0] gomba_x, gomba_y,
         output logic left_foot1, left_foot2, right_foot1, right_foot2, dead, disappear
 );
-    parameter [9:0] x_ori = gomba_x_ori;
+    parameter [9:0] x_ori = x_ori_;
     parameter [9:0] y_ori = 384;
 
-    parameter [9:0] x_min = gomba_x_min;
-    parameter [9:0] x_max = gomba_x_max;
+    parameter [9:0] x_min = x_min_;
+    parameter [9:0] x_max = x_max_;
     parameter [9:0] y_min = 0;
     parameter [9:0] y_max = 479;
     parameter [9:0] x_step = 2;

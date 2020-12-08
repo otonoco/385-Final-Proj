@@ -182,13 +182,16 @@ logic Reset_h, vssig, blank, sync, VGA_Clk;
     logic luigi, luigi_in_air;
     logic [23:0] luigi_pic_out;
     logic [23:0] luigi_sr, luigi_sl, luigi_rr1, luigi_rr2, luigi_rr3, luigi_rl1, luigi_rl2, luigi_rl3, luigi_jr, luigi_jl, luigi_die; 
-	 
+	logic luigi_at_edge;
     // The followings are for Mario in dual-player Mode
-	logic [9:0] mariod_x, mariod_y, process1,  mariod_y_motion;
+	logic [9:0] mariod_x, mariod_y, process1, mariod_y_motion;
     logic mariod, mariod_in_air;
     logic [23:0] mariod_pic_out;
     logic [23:0] mariod_sr, mariod_sl, mariod_rr1, mariod_rr2, mariod_rr3, mariod_rl1, mariod_rl2, mariod_rl3, mariod_jr, mariod_jl, mariod_die; 
 	 
+    luigi_d lluigi(.Clk(Clk), .Reset(Reset_h), .frame_clk(VGA_VS), .DrawX(drawxsig), .DrawY(drawysig), .luigi_alive(~luigi_dead), .keycode(keycode), .mario_x(mariod_x), .mario_y(mariod_y), .luigi_x(luigi_x), .luigi_y(luigi_y), .process_from_mario(process1), .process(process2), .luigi_y_motion(luigi_y_motion), .luigi(luigi), .luigi_in_air(luigi_in_air), .luigi_pic_out(luigi_pic_out), .at_edge(luigi_at_edge), .*);
+    mario_d dmario(.Clk(Clk), .Reset(Reset_h), .frame_clk(VGA_VS), .DrawX(drawxsig), .DrawY(drawysig), .mariod_alive(~mariod_dead), .keycode(keycode), .mariod_x(mariod_x), .mariod_y(mariod_y), .process(process1), .mariod_y_motion(mariod_y_motion), .mariod(mariod), .mariod_in_air(mariod_in_air), .mariod_pic_out(mariod_pic_out), .luigi_at_edge(luigi_at_edge), .*);
+	  
     // The followings are for Gomba
     logic gomba_alive,gomba, gomba_dead;
     logic [23:0] gomba_left, gomba_right,gomba_pic_out,gomba_deadp;
@@ -200,24 +203,22 @@ logic Reset_h, vssig, blank, sync, VGA_Clk;
     // logic [1:0] player;
     // assign player = 2'b10;
 
-	gomba #(10'd0, 10'd1023, 10'd400) gb1(.Clk(Clk), .Reset(Reset_h), .frame_clk(VGA_VS),.gomba(gomba), .DrawX(drawxsig), .DrawY(drawysig), .mario_x(mario_x), .process(process1),.gomba_alive(~gomba_dead),.gomba_left(gomba_left),.gomba_right(gomba_right), .gomba_deadp(gomba_deadp),.gomba_x(gomba_x), .gomba_y(gomba_y),.gomba_pic_out(gomba_pic_out));
-    gomba_r g_r(.Clk(VGA_Clk), .read_addr((drawxsig - gomba_x + process1)%32 + 32 * ((drawysig - gomba_y)%32)), .data_out(gomba_right));
-    gomba_l g_l(.Clk(VGA_Clk), .read_addr((drawxsig - gomba_x + process1)%32 + 32 * ((drawysig - gomba_y)%32)), .data_out(gomba_left));
-	gomba_dead gd(.Clk(VGA_Clk), .read_addr((drawxsig - gomba_x + process1)%32 + 32* ((drawysig - gomba_y)%32)), .data_out(gomba_deadp));
-	collision col(.Clk(Clk), .Reset(Reset_h), .frame_Clk(VGA_VS), .mario_x(mariod_x), .mario_y(mariod_y),.gomba_x(gomba_x), .gomba_y(gomba_y), .luigi_x(luigi_x), .luigi_y(luigi_y),.mario_y_motion(mariod_y_motion), .luigi_y_motion(luigi_y_motion),  .mario_dead(mariod_dead), .gomba_dead(gomba_dead),.luigi_dead(luigi_dead));
+	// gomba #(10'd0, 10'd1023, 10'd400) gb1(.Clk(Clk), .Reset(Reset_h), .frame_clk(VGA_VS),.gomba(gomba), .DrawX(drawxsig), .DrawY(drawysig), .mario_x(mario_x), .process(process1),.gomba_alive(~gomba_dead), .gomba_left(gomba_left), .gomba_right(gomba_right), .gomba_deadp(gomba_deadp), .gomba_x(gomba_x), .gomba_y(gomba_y), .gomba_pic_out(gomba_pic_out));
+    // gomba_r g_r(.Clk(VGA_Clk), .read_addr((drawxsig - gomba_x + process1)%32 + 32 * ((drawysig - gomba_y)%32)), .data_out(gomba_right));
+    // gomba_l g_l(.Clk(VGA_Clk), .read_addr((drawxsig - gomba_x + process1)%32 + 32 * ((drawysig - gomba_y)%32)), .data_out(gomba_left));
+	// gomba_dead gd(.Clk(VGA_Clk), .read_addr((drawxsig - gomba_x + process1)%32 + 32* ((drawysig - gomba_y)%32)), .data_out(gomba_deadp));
+	collision col(.Clk(Clk), .Reset(Reset_h), .frame_Clk(VGA_VS), .mario_x(mariod_x), .mario_y(mariod_y), .gomba_x(gomba_x), .gomba_y(gomba_y), .luigi_x(luigi_x), .luigi_y(luigi_y), .mario_y_motion(mariod_y_motion), .luigi_y_motion(luigi_y_motion), .mario_dead(mariod_dead), .gomba_dead(gomba_dead), .luigi_dead(luigi_dead));
 
-    luigi_d lluigi(.Clk(Clk), .Reset(Reset_h), .frame_clk(VGA_VS), .DrawX(drawxsig), .DrawY(drawysig), .luigi_alive(~luigi_dead), .keycode(keycode),  .mario_x(mariod_x), .mario_y(mariod_y),.luigi_x(luigi_x), .luigi_y(luigi_y), .process_from_mario(process1), .process(process2), .luigi_y_motion(luigi_y_motion), .luigi(luigi), .luigi_in_air(luigi_in_air), .luigi_pic_out(luigi_pic_out), .*);
-    mario_d dmario(.Clk(Clk), .Reset(Reset_h), .frame_clk(VGA_VS), .DrawX(drawxsig), .DrawY(drawysig), .mariod_alive(~mariod_dead), .keycode(keycode), .mariod_x(mariod_x), .mariod_y(mariod_y), .process(process1), .mariod_y_motion(mariod_y_motion), .mariod(mariod), .mariod_in_air(mariod_in_air), .mariod_pic_out(mariod_pic_out), .*);
-	  
 //    mario_s mmario(.Clk(Clk), .Reset(Reset_h), .frame_clk(VGA_VS), .DrawX(drawxsig), .DrawY(drawysig), .mario_alive(~mario_dead), .keycode(keycode), .mario_x(mario_x), .mario_y(mario_y), .process(process), .mario_y_motion(mario_y_motion), .mario(mario), .mario_in_air(mario_in_air), .mario_pic_out(mario_pic_out), .*);
     // color_mapper cm(.mario(mario), .luigi(luigi), .mariod(mariod), .gomba(gomba), .coin(coin), .coin_pic_out(coin_pic_out), .mario_pic_out(mario_pic_out), .mariod_pic_out(mariod_pic_out), .luigi_pic_out(luigi_pic_out), .gomba_pic_out(gomba_pic_out), .ground(groundd), .DrawX(drawxsig), .DrawY(drawysig), .Red(Red), .Green(Green), .Blue(Blue));
 
-    color_mapper cm(.mariod(mariod), .luigi(luigi), .gomba(gomba), .coin1(coin1), .coin2(coin2), .mariod_pic_out(mariod_pic_out), .luigi_pic_out(luigi_pic_out), .gomba_pic_out(gomba_pic_out), .coin1_pic_out(coin1_pic_out), .coin2_pic_out(coin2_pic_out), .ground(groundd), .DrawX(drawxsig), .drawysig(drawysig), .Red(Red), .Green(Green), .Blue(Blue));
-    
+    color_mapper cm(.mariod(mariod), .luigi(luigi), .gomba(gomba), .coin1(coin1), .coin2(coin2), .mariod_pic_out(mariod_pic_out), .luigi_pic_out(luigi_pic_out), .gomba_pic_out(gomba_pic_out), .coin1_pic_out(coin1_pic_out), .coin2_pic_out(coin2_pic_out), .ground(groundd), .DrawX(drawxsig), .DrawY(drawysig), .Red(Red), .Green(Green), .Blue(Blue));
+
     // The followings are for coins
     logic coin1_alive, coin1;
     logic coin2_alive, coin2;
     logic [23:0] front, side, back;    
+	logic [23:0] front1, side1, back1; 
     logic [9:0] coin1_x, coin1_y;
     logic [9:0] coin2_x, coin2_y;
     logic [23:0] coin1_pic_out, coin2_pic_out;
@@ -227,10 +228,10 @@ logic Reset_h, vssig, blank, sync, VGA_Clk;
     coin #(10'd0, 10'd1023, 10'd400) c1(.Reset(Reset_h), .frame_clk(VGA_VS), .Clk(Clk), .DrawX(drawxsig), .DrawY(drawysig), .process(process1), .coin_alive(coin1_alive), .front(front), .side(side), .back(back),.coin(coin1),.coin_x(coin1_x), .coin_y(coin1_y),.coin_pic_out(coin1_pic_out));
     eat_coin ec1(.Reset(Reset_h), .frame_Clk(VGA_VS), .Clk(Clk), .mario_x(mariod_x), .mario_y(mariod_y),.coin_x(coin1_x), .coin_y(coin1_y),.luigi_x(luigi_x), .luigi_y(luigi_y),.coin_alive(coin1_alive));
 
-    front f2(.Clk(VGA_Clk), .read_addr((drawxsig - coin2_x + process1)%16 + 16 * ((drawysig - coin2_y)%28)), .front(front));
-    side s2(.Clk(VGA_Clk), .read_addr((drawxsig - coin2_x + process1)%16 + 16 * ((drawysig - coin2_y)%28)), .side(side));
-    back b2(.Clk(VGA_Clk), .read_addr((drawxsig - coin2_x + process1)%16 + 16 * ((drawysig - coin2_y)%28)), .back(back));
-    coin #(10'd0, 10'd1023, 10'd900) c2(.Reset(Reset_h), .frame_clk(VGA_VS), .Clk(Clk), .DrawX(drawxsig), .DrawY(drawysig), .process(process1), .coin_alive(coin2_alive), .front(front), .side(side), .back(back),.coin(coin2),.coin_x(coin2_x), .coin_y(coin2_y),.coin_pic_out(coin2_pic_out));
+    front f2(.Clk(VGA_Clk), .read_addr((drawxsig - coin2_x + process1)%16 + 16 * ((drawysig - coin2_y)%28)), .front(front1));
+    side s2(.Clk(VGA_Clk), .read_addr((drawxsig - coin2_x + process1)%16 + 16 * ((drawysig - coin2_y)%28)), .side(side1));
+    back b2(.Clk(VGA_Clk), .read_addr((drawxsig - coin2_x + process1)%16 + 16 * ((drawysig - coin2_y)%28)), .back(back1));
+    coin #(10'd0, 10'd1023, 10'd900) c2(.Reset(Reset_h), .frame_clk(VGA_VS), .Clk(Clk), .DrawX(drawxsig), .DrawY(drawysig), .process(process1), .coin_alive(coin2_alive), .front(front1), .side(side1), .back(back1),.coin(coin2),.coin_x(coin2_x), .coin_y(coin2_y),.coin_pic_out(coin2_pic_out));
 	eat_coin ec2(.Reset(Reset_h), .frame_Clk(VGA_VS), .Clk(Clk), .mario_x(mariod_x), .mario_y(mariod_y),.coin_x(coin2_x), .coin_y(coin2_y),.luigi_x(luigi_x), .luigi_y(luigi_y),.coin_alive(coin2_alive));
 
 	 //mario move single mode

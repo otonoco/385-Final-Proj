@@ -12,7 +12,10 @@ module coin #(parameter coin_x_min = 10'd0;
         output logic [9:0] coin_x, coin_y,
         output logic [23:0] coin_pic_out
 );
-    
+    logic [9:0] x_min_, x_max_, x_ori_;
+    assign x_min_ = coin_x_min;
+    assign x_max_ = coin_x_max;
+    assign x_ori_ = coin_x_ori;
     logic zhengmian, cemian, beimian, eaten;
 
     coin_image c_i(.*);
@@ -20,7 +23,7 @@ module coin #(parameter coin_x_min = 10'd0;
 
     always_comb
     begin
-        if (coin_x < process + DrawX && DrawX + process <= coin_x + 10'd16 && DrawY > coin_y && DrawY < coin_y + 10'd28)
+        if (coin_x < process + DrawX && DrawX + process < coin_x + 10'd16 && DrawY > coin_y && DrawY < coin_y + 10'd28)
             begin
                 coin = 1'b1;
             end
@@ -29,19 +32,21 @@ module coin #(parameter coin_x_min = 10'd0;
     end
 endmodule 
 
-module coin_movem #(parameter coin_x_min = 10'd0;
-                    parameter coin_x_max = 10'd639;
-                    parameter coin_x_ori = 10'd400)
-        (
+module coin_movem (
         input Reset, frame_clk, Clk, coin_alive,
+        input [9:0] x_min_, x_max_, x_ori_,
         output logic [9:0] coin_x, coin_y,
         output logic zhengmian, cemian, beimian, eaten
 );  
-    parameter [9:0] x_ori = coin_x_ori;
+    logic [9:0] x_ori, x_min, x_max;
+    assign x_ori = x_ori_;
+    assign x_min = x_min_;
+    assign x_max = x_max_;
+    // parameter [9:0] x_ori = x_ori_;
     parameter [9:0] y_ori = 300;
 
-    parameter [9:0] x_min = coin_x_min;
-    parameter [9:0] x_max = coin_x_max;
+    // parameter [9:0] x_min = x_min_;
+    // parameter [9:0] x_max = x_max_;
     parameter [9:0] y_min = 0;
     parameter [9:0] y_max = 479;
 
