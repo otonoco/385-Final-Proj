@@ -5,9 +5,10 @@ module collision(
         input [9:0] luigi_x, luigi_y,
         input [9:0] luigi_y_motion,
         input [9:0] mario_y_motion,
+        input [9:0] process,
         output mario_dead, gomba_dead, luigi_dead
 );
-    logic mario_dead_in, gomba_dead_in1,gomba_dead_in2,luigi_dead_in;
+    logic mario_dead_in, gomba_dead_in1, gomba_dead_in2, luigi_dead_in, gomba_dead_in3;
 
     always_ff @(posedge Clk)
     begin
@@ -20,11 +21,22 @@ module collision(
         else 
             begin
                 mario_dead <= mario_dead_in;
-                gomba_dead <= gomba_dead_in1 || gomba_dead_in2;
+                gomba_dead <= gomba_dead_in1 || gomba_dead_in2 || gomba_dead_in3;
                 luigi_dead <= luigi_dead_in;
             end
     end
-    
+    always_comb
+    begin
+        gomba_dead_in3 = gomba_dead;
+        if (gomba_x < process)
+            begin
+                gomba_dead_in3 = 1'b1;
+            end
+        else
+            begin
+                gomba_dead_in3 = gomba_dead;
+            end
+    end
     always_comb
     begin
         mario_dead_in = mario_dead;

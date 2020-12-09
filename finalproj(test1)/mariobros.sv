@@ -203,11 +203,11 @@ logic Reset_h, vssig, blank, sync, VGA_Clk;
     // logic [1:0] player;
     // assign player = 2'b10;
 
-	// gomba #(10'd0, 10'd1023, 10'd400) gb1(.Clk(Clk), .Reset(Reset_h), .frame_clk(VGA_VS),.gomba(gomba), .DrawX(drawxsig), .DrawY(drawysig), .mario_x(mario_x), .process(process1),.gomba_alive(~gomba_dead), .gomba_left(gomba_left), .gomba_right(gomba_right), .gomba_deadp(gomba_deadp), .gomba_x(gomba_x), .gomba_y(gomba_y), .gomba_pic_out(gomba_pic_out));
-    // gomba_r g_r(.Clk(VGA_Clk), .read_addr((drawxsig - gomba_x + process1)%32 + 32 * ((drawysig - gomba_y)%32)), .data_out(gomba_right));
-    // gomba_l g_l(.Clk(VGA_Clk), .read_addr((drawxsig - gomba_x + process1)%32 + 32 * ((drawysig - gomba_y)%32)), .data_out(gomba_left));
-	// gomba_dead gd(.Clk(VGA_Clk), .read_addr((drawxsig - gomba_x + process1)%32 + 32* ((drawysig - gomba_y)%32)), .data_out(gomba_deadp));
-	collision col(.Clk(Clk), .Reset(Reset_h), .frame_Clk(VGA_VS), .mario_x(mariod_x), .mario_y(mariod_y), .gomba_x(gomba_x), .gomba_y(gomba_y), .luigi_x(luigi_x), .luigi_y(luigi_y), .mario_y_motion(mariod_y_motion), .luigi_y_motion(luigi_y_motion), .mario_dead(mariod_dead), .gomba_dead(gomba_dead), .luigi_dead(luigi_dead));
+	gomba #(10'd0, 10'd1023, 10'd400) gb1(.Clk(Clk), .Reset(Reset_h), .frame_clk(VGA_VS),.gomba(gomba), .DrawX(drawxsig), .DrawY(drawysig), .mario_x(mario_x), .process(process1),.gomba_alive(~gomba_dead), .gomba_left(gomba_left), .gomba_right(gomba_right), .gomba_deadp(gomba_deadp), .gomba_x(gomba_x), .gomba_y(gomba_y), .gomba_pic_out(gomba_pic_out));
+    gomba_r g_r(.Clk(VGA_Clk), .read_addr((drawxsig - gomba_x + process1)%32 + 32 * ((drawysig - gomba_y)%32)), .data_out(gomba_right));
+    gomba_l g_l(.Clk(VGA_Clk), .read_addr((drawxsig - gomba_x + process1)%32 + 32 * ((drawysig - gomba_y)%32)), .data_out(gomba_left));
+	gomba_dead gd(.Clk(VGA_Clk), .read_addr((drawxsig - gomba_x + process1)%32 + 32* ((drawysig - gomba_y)%32)), .data_out(gomba_deadp));
+	collision col(.Clk(Clk), .Reset(Reset_h), .frame_Clk(VGA_VS), .mario_x(mariod_x), .mario_y(mariod_y), .gomba_x(gomba_x), .gomba_y(gomba_y), .luigi_x(luigi_x), .luigi_y(luigi_y), .mario_y_motion(mariod_y_motion), .luigi_y_motion(luigi_y_motion), .process(process1), .mario_dead(mariod_dead), .gomba_dead(gomba_dead), .luigi_dead(luigi_dead));
 
 //    mario_s mmario(.Clk(Clk), .Reset(Reset_h), .frame_clk(VGA_VS), .DrawX(drawxsig), .DrawY(drawysig), .mario_alive(~mario_dead), .keycode(keycode), .mario_x(mario_x), .mario_y(mario_y), .process(process), .mario_y_motion(mario_y_motion), .mario(mario), .mario_in_air(mario_in_air), .mario_pic_out(mario_pic_out), .*);
     // color_mapper cm(.mario(mario), .luigi(luigi), .mariod(mariod), .gomba(gomba), .coin(coin), .coin_pic_out(coin_pic_out), .mario_pic_out(mario_pic_out), .mariod_pic_out(mariod_pic_out), .luigi_pic_out(luigi_pic_out), .gomba_pic_out(gomba_pic_out), .ground(groundd), .DrawX(drawxsig), .DrawY(drawysig), .Red(Red), .Green(Green), .Blue(Blue));

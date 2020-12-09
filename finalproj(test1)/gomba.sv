@@ -7,7 +7,7 @@ module gomba #(parameter gomba_x_min = 10'd0;
         input [9:0] mario_x,
         input process,
         input gomba_alive,
-        input [23:0] gomba_left, gomba_right,gomba_deadp,
+        input [23:0] gomba_left, gomba_right, gomba_deadp,
         
         output logic gomba,
         output logic [9:0] gomba_x, gomba_y,
