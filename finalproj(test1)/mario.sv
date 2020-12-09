@@ -1,101 +1,83 @@
-module luigi_d (
+module mario_s (
         input Reset, frame_clk, Clk,
         input [31:0] keycode,
         input [9:0] DrawX, DrawY,
-        input luigi_alive,
-        input [9:0] mario_x, mario_y,
-        input [9:0] process_from_mario,
-        input [23:0] luigi_sl, luigi_sr, luigi_rl1, luigi_rl2, luigi_rl3, luigi_rr1, luigi_rr2, luigi_rr3, luigi_jr, luigi_jl, luigi_die,
+        input mario_alive,
 
-        output logic [9:0] luigi_x, luigi_y, process, luigi_y_motion,
-        output logic luigi, luigi_in_air,
-        output logic at_edge,
-        output logic [23:0] luigi_pic_out
+        input [23:0] mario_sl, mario_sr, mario_rl1, mario_rl2, mario_rl3, mario_rr1, mario_rr2, mario_rr3, mario_jr, mario_jl, mario_die,
+
+        output logic [9:0] mario_x, mario_y, process, mario_y_motion,
+        output logic mario, mario_in_air,
+        output logic [23:0] mario_counter,
+        output logic [23:0] mario_pic_out
 );
     logic w, s, a, d;
     logic sl, sr, rr1, rr2, rr3, rl1, rl2, rl3, jr, jl, il, ir, gr, gl, di;
 
-    assign a = ((keycode[15:8] == 8'h50) | (keycode[7:0] == 8'h50)|(keycode[23:16] == 8'h50) | (keycode[31:24] == 8'h50));
-    assign d = ((keycode[15:8] == 8'h4F) | (keycode[7:0] == 8'h4F)|(keycode[23:16] == 8'h4F) | (keycode[31:24] == 8'h4F));
-    assign w = ((keycode[15:8] == 8'h52) | (keycode[7:0] == 8'h52)|(keycode[23:16] == 8'h52) | (keycode[31:24] == 8'h52));
-    assign s = ((keycode[15:8] == 8'h51) | (keycode[7:0] == 8'h51)|(keycode[23:16] == 8'h51) | (keycode[31:24] == 8'h51));
+    assign a = ((keycode[15:8] == 8'h04) | (keycode[7:0] == 8'h04)|(keycode[23:16] == 8'h04) | (keycode[31:24] == 8'h04));
+    assign d = ((keycode[15:8] == 8'h07) | (keycode[7:0] == 8'h07)|(keycode[23:16] == 8'h07) | (keycode[31:24] == 8'h07));
+    assign w = ((keycode[15:8] == 8'h1A) | (keycode[7:0] == 8'h1A)|(keycode[23:16] == 8'h1A) | (keycode[31:24] == 8'h1A));
+    assign s = ((keycode[15:8] == 8'h16) | (keycode[7:0] == 8'h16)|(keycode[23:16] == 8'h16) | (keycode[31:24] == 8'h16));
 
-    luigi_image m_i(.*);
-    luigi_movem m_m(.*);
+    mario_image m_i(.*);
+    mario_movem m_m(.*);
 
     always_comb
     begin
-        if (luigi_x < process_from_mario + DrawX && DrawX + process_from_mario < luigi_x + 10'd26 && DrawY > luigi_y && DrawY < luigi_y + 10'd32)
+        if (mario_x < process + DrawX && DrawX + process < mario_x + 10'd26 && DrawY > mario_y && DrawY < mario_y + 10'd32)
             begin
-                luigi = 1'b1;
+                mario = 1'b1;
             end
         else
-            luigi = 1'b0;
+            mario = 1'b0;
     end
 
 endmodule 
 
 
-module luigi_movem (
+module mario_movem (
         input Clk, Reset, frame_clk,
         input w, s, a, d,
-        input luigi_alive,
-        input [9:0] mario_x, mario_y, process_from_mario,
-        output logic [9:0] luigi_x, luigi_y, process, luigi_y_motion,
-        output logic luigi_in_air,
-        output logic at_edge,
+        input mario_alive,
+        
+        output logic [9:0] mario_x, mario_y, process, mario_y_motion,
+        output logic mario_in_air,
+		  output logic [23:0] mario_counter,
         output logic sl, sr, rr1, rr2, rr3, rl1, rl2, rl3, jr, jl, il, ir, gr, gl, di
 );
 
-    parameter [9:0] luigi_x_ori = 50;
-    parameter [9:0] luigi_y_ori = 400;
+    parameter [9:0] mario_x_ori = 20;
+    parameter [9:0] mario_y_ori = 400;
 
-    parameter [9:0] luigi_x_min = 0;
-    parameter [9:0] luigi_x_max = 1023;
-    parameter [9:0] luigi_y_min = 0;
-    parameter [9:0] luigi_y_max = 479;
-    parameter [9:0] luigi_x_step = 2;
+    parameter [9:0] mario_x_min = 0;
+    parameter [9:0] mario_x_max = 639;
+    parameter [9:0] mario_y_min = 0;
+    parameter [9:0] mario_y_max = 479;
+    parameter [9:0] mario_x_step = 2;
 
-    parameter [9:0] luigi_x_size = 26;
+    parameter [9:0] mario_x_size = 26;
 
-    logic [9:0] luigi_x_motion, altitude;
-    logic [9:0] luigi_x_pos_input, luigi_x_motion_input, luigi_y_pos_input, luigi_y_motion_input;
+    logic [9:0] mario_x_motion, level;
+    logic [9:0] mario_x_pos_input, mario_x_motion_input, mario_y_pos_input, mario_y_motion_input;
     logic [9:0] process_input;
 
     logic sl_in, sr_in, rr1_in, rr2_in, rr3_in, rl1_in, rl2_in, rl3_in, jr_in, jl_in, ir_in, il_in, gr_in, gl_in, di_in;
 
-    logic [23:0] luigi_counter, luigi_counter_in;
+    logic [23:0]  mario_counter_in;
     logic [23:0] counter2, counter2_in;
     logic flag, flag_in;
-    logic at_edge_in;
 	logic i;
     always_comb
     begin
-        if (luigi_y + luigi_y_motion >= 10'd384)
+        if (mario_y + mario_y_motion >= 10'd384)
             begin
-                luigi_in_air = 1'b0;
-                altitude = 10'd384;
+                mario_in_air = 1'b0;
+                level = 10'd384;
             end
-		else if ((luigi_x + 10'd26 > 10'd100) && (luigi_x < 10'd100 + 10'd62) && (luigi_y + luigi_y_motion >= 10'd320) && (luigi_y + luigi_y_motion < 10'd384))
-            begin
-                luigi_in_air = 1'b0;
-                altitude = 10'd320;
-            end
-		else if ((luigi_x + 10'd26 > 10'd640) && (luigi_x < 10'd640 + 10'd62) && (luigi_y + luigi_y_motion >= 10'd320) && (luigi_y + luigi_y_motion < 10'd384))
-            begin
-                luigi_in_air = 1'b0;
-                altitude = 10'd320;
-            end
-        else if ((luigi_x + 10'd26 > mario_x) && (luigi_x < mario_x + 10'd26) && (luigi_y + luigi_y_motion >= mario_y) && (luigi_y + luigi_y_motion < 10'd384))
-            begin
-                luigi_in_air = 1'b0;
-                altitude = mario_y - 10'd32;
-            end
-
         else
             begin
-                luigi_in_air = 1'b1;
-                altitude = 10'd384;
+                mario_in_air = 1'b1;
+                level = 10'd384;
             end
     end
 
@@ -126,16 +108,15 @@ module luigi_movem (
     begin
         if (Reset)
             begin
-                luigi_x <= 10'd80;
-                luigi_y <= 10'd384;
-                luigi_x_motion <= 10'd0;
-                luigi_y_motion <= 10'd0;
+                mario_x <= 10'd80;
+                mario_y <= 10'd384;
+                mario_x_motion <= 10'd0;
+                mario_y_motion <= 10'd0;
                 process <= 10'd0;
                 STATE <= STAND_R;
-                luigi_counter <= 24'b0;
+                mario_counter <= 24'b0;
                 counter2 <= 24'b0;
                 flag <= 1'b0;
-                at_edge <= 1'b0;
                 sr  <= 1'b1;
                 sl  <= 1'b0;
                 rr1 <= 1'b0;
@@ -154,16 +135,15 @@ module luigi_movem (
             end
         else
             begin
-                luigi_x <= luigi_x_pos_input;
-                luigi_y <= luigi_y_pos_input;
-                luigi_x_motion <= luigi_x_motion_input;
-                luigi_y_motion <= luigi_y_motion_input;
+                mario_x <= mario_x_pos_input;
+                mario_y <= mario_y_pos_input;
+                mario_x_motion <= mario_x_motion_input;
+                mario_y_motion <= mario_y_motion_input;
                 process <= process_input;
                 STATE <= NEXT_STATE;
-                luigi_counter <= luigi_counter_in;
+                mario_counter <= mario_counter_in;
                 counter2 <= counter2_in;
                 flag <= flag_in;
-                at_edge <= at_edge_in;
                 sr  <= sr_in;
                 sl  <= sl_in;
                 rr1 <= rr1_in;
@@ -184,16 +164,15 @@ module luigi_movem (
 
     always_comb
     begin
-        luigi_x_pos_input = luigi_x;
-        luigi_y_pos_input = luigi_y;
-        luigi_x_motion_input = luigi_x_motion;
-        luigi_y_motion_input = luigi_y_motion;
+        mario_x_pos_input = mario_x;
+        mario_y_pos_input = mario_y;
+        mario_x_motion_input = mario_x_motion;
+        mario_y_motion_input = mario_y_motion;
         process_input = process;
         NEXT_STATE = STATE;
         flag_in = flag;
-        luigi_counter_in = luigi_counter;
+        mario_counter_in = mario_counter;
         counter2_in = counter2;
-        at_edge_in = at_edge;
         if (frame_clk_rising_edge)
             begin
                 unique case (STATE)
@@ -218,11 +197,10 @@ module luigi_movem (
 
                     STAND_R:
                         begin
-                            luigi_x_motion_input = 10'd0;
-                            luigi_y_motion_input = 10'd0;
-                            luigi_counter_in = 24'b0;
+                            mario_x_motion_input = 10'd0;
+                            mario_y_motion_input = 10'd0;
+                            mario_counter_in = 24'b0;
                             counter2_in = 24'b0;
-                            at_edge_in = 1'b0;
                             sr_in  = 1'b1;
                             sl_in  = 1'b0;
                             rr1_in = 1'b0;
@@ -238,15 +216,11 @@ module luigi_movem (
                             gr_in  = 1'b0;
                             gl_in  = 1'b0;
                             di_in  = 1'b0;
-                            if (luigi_x <= process_from_mario)
-                                begin
-                                    at_edge_in = 1'b1;
-                                end
-                            if (luigi_alive == 1'b0)
+                            if (mario_alive == 1'b0)
                                 begin
                                     NEXT_STATE = DIE;
-                                    luigi_x_motion_input = 10'd0;
-                                    luigi_y_motion_input = ~(10'd15) + 1'd1;
+                                    mario_x_motion_input = 10'd0;
+                                    mario_y_motion_input = ~(10'd15) + 1'd1;
                                 end
                             else if (w && ~flag)
                                 begin
@@ -277,11 +251,10 @@ module luigi_movem (
                     
                     STAND_L:
                         begin
-                            luigi_x_motion_input = 10'd0;
-                            luigi_y_motion_input = 10'd0;
-                            luigi_counter_in = 24'b0;
+                            mario_x_motion_input = 10'd0;
+                            mario_y_motion_input = 10'd0;
+                            mario_counter_in = 24'b0;
                             counter2_in = 24'b0;
-                            at_edge_in = 1'b0;
                             sr_in  = 1'b0;
                             sl_in  = 1'b1;
                             rr1_in = 1'b0;
@@ -297,15 +270,11 @@ module luigi_movem (
                             gr_in  = 1'b0;
                             gl_in  = 1'b0;
                             di_in  = 1'b0;
-                            if (luigi_x <= process_from_mario)
-                                begin
-                                    at_edge_in = 1'b1;
-                                end
-                            if (luigi_alive == 1'b0)
+                            if (mario_alive == 1'b0)
                                 begin
                                     NEXT_STATE = DIE;
-                                    luigi_x_motion_input = 10'd0;
-                                    luigi_y_motion_input = ~(10'd15) + 1'd1;
+                                    mario_x_motion_input = 10'd0;
+                                    mario_y_motion_input = ~(10'd15) + 1'd1;
                                 end
                             else if (w && ~flag)
                                 begin
@@ -336,10 +305,9 @@ module luigi_movem (
                     
                     RUN_1_R:
                         begin
-                            luigi_x_motion_input = 10'd2;
-                            luigi_y_motion_input = 10'd0;
+                            mario_x_motion_input = 10'd2;
+                            mario_y_motion_input = 10'd0;
                             flag_in = flag;
-                            at_edge_in = 1'b0;
                             sr_in  = 1'b0;
                             sl_in  = 1'b0;
                             rr1_in = 1'b1;
@@ -355,49 +323,41 @@ module luigi_movem (
                             gr_in  = 1'b0;
                             gl_in  = 1'b0;
                             di_in  = 1'b0;
-                            if (luigi_x + luigi_x_size >= process_from_mario + 10'd640)
+                            if (mario_x + mario_x_size >= mario_x_max)
                                 begin
-                                    luigi_x_motion_input = 10'd2;
-                                end
-									    if (luigi_x + 10'd26 > 10'd101 && luigi_x < 10'd99 + 10'd62 && luigi_y > 10'd320 && d)
-                                begin
-                                    luigi_x_motion_input = 10'd0;
-                                end
- if (luigi_x + 10'd26 > 10'd641 && luigi_x < 10'd639 + 10'd62 && luigi_y > 10'd320 && d)
-                                begin
-                                    luigi_x_motion_input = 10'd0;
+                                    mario_x_motion_input = 10'd0;
                                 end
                             if (~w)
                                 begin
                                     flag_in = 1'b0;
                                 end
-                            if (luigi_alive == 1'd0)
+                            if (mario_alive == 1'd0)
                                 begin
                                     NEXT_STATE = DIE;
-                                    luigi_x_motion_input = 10'd0;
-                                    luigi_y_motion_input = ~(9'd15) + 1'd1;
+                                    mario_x_motion_input = 10'd0;
+                                    mario_y_motion_input = ~(9'd15) + 1'd1;
                                 end
                             else if (w && ~flag)
                                 begin
                                     NEXT_STATE = JUMP_R;
                                     flag_in = 1'b1;
                                 end
-                            else if (d && luigi_counter[1])
+                            else if (d && mario_counter[1])
                                 begin
                                     NEXT_STATE = RUN_2_R;
-                                    luigi_counter_in = 24'b0;
+                                    mario_counter_in = 24'b0;
                                 end
-                            else if (d && ~luigi_counter[1])
+                            else if (d && ~mario_counter[1])
                                 begin
                                     NEXT_STATE = RUN_1_R;
                                     if (counter2[0] == 1'b1)
                                         begin
-                                            luigi_counter_in = luigi_counter + 24'b1;
+                                            mario_counter_in = mario_counter + 24'b1;
                                             counter2_in = 24'b0;
                                         end
                                     else 
                                         begin
-                                            luigi_counter_in = luigi_counter;
+                                            mario_counter_in = mario_counter;
                                             counter2_in = counter2 + 24'b1;
                                         end
                                 end
@@ -409,9 +369,8 @@ module luigi_movem (
 
                     RUN_2_R:
                         begin
-                            luigi_x_motion_input = 10'd2;
-                            luigi_y_motion_input = 10'd0;
-                            at_edge_in = 1'b0;
+                            mario_x_motion_input = 10'd2;
+                            mario_y_motion_input = 10'd0;
                             flag_in = flag;
                             sr_in  = 1'b0;
                             sl_in  = 1'b0;
@@ -428,49 +387,41 @@ module luigi_movem (
                             gr_in  = 1'b0;
                             gl_in  = 1'b0;
                             di_in  = 1'b0;
-                            if (luigi_x + luigi_x_size >= process_from_mario + 10'd640)
+                            if (mario_x + mario_x_size >= mario_x_max)
                                 begin
-                                    luigi_x_motion_input = 10'd2;
-                                end
-										      if (luigi_x + 10'd26 > 10'd101 && luigi_x < 10'd99 + 10'd62 && luigi_y > 10'd320 && d)
-                                begin
-                                    luigi_x_motion_input = 10'd0;
-                                end
- if (luigi_x + 10'd26 > 10'd641 && luigi_x < 10'd639 + 10'd62 && luigi_y > 10'd320 && d)
-                                begin
-                                    luigi_x_motion_input = 10'd0;
+                                    mario_x_motion_input = 10'd0;
                                 end
                             if (~w)
                                 begin
                                     flag_in = 1'b0;
                                 end
-                            if (luigi_alive == 1'd0)
+                            if (mario_alive == 1'd0)
                                 begin
                                     NEXT_STATE = DIE;
-                                    luigi_x_motion_input = 10'd0;
-                                    luigi_y_motion_input = ~(10'd15) + 1'd1;
+                                    mario_x_motion_input = 10'd0;
+                                    mario_y_motion_input = ~(10'd15) + 1'd1;
                                 end
                             else if (w && ~flag)
                                 begin
                                     NEXT_STATE = JUMP_R;
                                     flag_in = 1'b1;
                                 end
-                            else if (d && luigi_counter[1])
+                            else if (d && mario_counter[1])
                                 begin
                                     NEXT_STATE = RUN_3_R;
-                                    luigi_counter_in = 24'b0;
+                                    mario_counter_in = 24'b0;
                                 end
-                            else if (d && ~luigi_counter[1])
+                            else if (d && ~mario_counter[1])
                                 begin
                                     NEXT_STATE = RUN_2_R;
                                     if (counter2[0] == 1'b1)
                                         begin
-                                            luigi_counter_in = luigi_counter + 24'b1;
+                                            mario_counter_in = mario_counter + 24'b1;
                                             counter2_in = 24'b0;
                                         end
                                     else 
                                         begin
-                                            luigi_counter_in = luigi_counter;
+                                            mario_counter_in = mario_counter;
                                             counter2_in = counter2 + 24'b1;
                                         end
                                 end
@@ -482,9 +433,8 @@ module luigi_movem (
 
                     RUN_3_R:
                         begin
-                            luigi_x_motion_input = 10'd2;
-                            luigi_y_motion_input = 10'd0;
-                            at_edge_in = 1'b0;
+                            mario_x_motion_input = 10'd2;
+                            mario_y_motion_input = 10'd0;
                             flag_in = flag;
                             sr_in  = 1'b0;
                             sl_in  = 1'b0;
@@ -501,49 +451,41 @@ module luigi_movem (
                             gr_in  = 1'b0;
                             gl_in  = 1'b0;
                             di_in  = 1'b0;
-                            if (luigi_x + luigi_x_size >= process_from_mario + 10'd640)
+                            if (mario_x + mario_x_size >= mario_x_max)
                                 begin
-                                    luigi_x_motion_input = 10'd2;
-                                end
-										     if (luigi_x + 10'd26 > 10'd101 && luigi_x < 10'd99 + 10'd62 && luigi_y > 10'd320 && d)
-                                begin
-                                    luigi_x_motion_input = 10'd0;
-                                end
- if (luigi_x + 10'd26 > 10'd641 && luigi_x < 10'd639 + 10'd62 && luigi_y > 10'd320 && d)
-                                begin
-                                    luigi_x_motion_input = 10'd0;
+                                    mario_x_motion_input = 10'd0;
                                 end
                             if (~w)
                                 begin
                                     flag_in = 1'b0;
                                 end
-                            if (luigi_alive == 1'd0)
+                            if (mario_alive == 1'd0)
                                 begin
                                     NEXT_STATE = DIE;
-                                    luigi_x_motion_input = 10'd0;
-                                    luigi_y_motion_input = ~(10'd15) + 1'd1;
+                                    mario_x_motion_input = 10'd0;
+                                    mario_y_motion_input = ~(10'd15) + 1'd1;
                                 end
                             else if (w && ~flag)
                                 begin
                                     NEXT_STATE = JUMP_R;
                                     flag_in = 1'b1;
                                 end
-                            else if (d && luigi_counter[1])
+                            else if (d && mario_counter[1])
                                 begin
                                     NEXT_STATE = RUN_1_R;
-                                    luigi_counter_in = 24'b0;
+                                    mario_counter_in = 24'b0;
                                 end
-                            else if (d && ~luigi_counter[1])
+                            else if (d && ~mario_counter[1])
                                 begin
                                     NEXT_STATE = RUN_3_R;
                                     if (counter2[0] == 1'b1)
                                         begin
-                                            luigi_counter_in = luigi_counter + 24'b1;
+                                            mario_counter_in = mario_counter + 24'b1;
                                             counter2_in = 24'b0;
                                         end
                                     else 
                                         begin
-                                            luigi_counter_in = luigi_counter;
+                                            mario_counter_in = mario_counter;
                                             counter2_in = counter2 + 24'b1;
                                         end
                                 end
@@ -555,9 +497,8 @@ module luigi_movem (
 
                     RUN_1_L:
                         begin
-                            luigi_x_motion_input = (~10'd2) + 1'b1;
-                            luigi_y_motion_input = 10'd0;
-                            at_edge_in = 1'b0;
+                            mario_x_motion_input = (~10'd2) + 1'b1;
+                            mario_y_motion_input = 10'd0;
                             flag_in = flag;
                             sr_in  = 1'b0;
                             sl_in  = 1'b0;
@@ -574,50 +515,41 @@ module luigi_movem (
                             gr_in  = 1'b0;
                             gl_in  = 1'b0;
                             di_in  = 1'b0;
-                            if (luigi_x + luigi_x_motion <= process_from_mario)
+                            if (mario_x + mario_x_motion <= 10'd1)
                                 begin
-                                    luigi_x_motion_input = 10'd0;
-                                    at_edge_in = 1'b1;
-                                end
-										      if (luigi_x + 10'd26 > 10'd101 && luigi_x < 10'd99 + 10'd62 && luigi_y > 10'd320 && d)
-                                begin
-                                    luigi_x_motion_input = 10'd0;
-                                end
- if (luigi_x + 10'd26 > 10'd641 && luigi_x < 10'd639 + 10'd62 && luigi_y > 10'd320 && d)
-                                begin
-                                    luigi_x_motion_input = 10'd0;
+                                    mario_x_motion_input = 10'd0;
                                 end
                             if (~w)
                                 begin
                                     flag_in = 1'b0;
                                 end
-                            if (luigi_alive == 1'd0)
+                            if (mario_alive == 1'd0)
                                 begin
                                     NEXT_STATE = DIE;
-                                    luigi_x_motion_input = 10'd0;
-                                    luigi_y_motion_input = ~(10'd15) + 1'd1;
+                                    mario_x_motion_input = 10'd0;
+                                    mario_y_motion_input = ~(10'd15) + 1'd1;
                                 end
                             else if (w && ~flag)
                                 begin
                                     NEXT_STATE = JUMP_L;
                                     flag_in = 1'b1;
                                 end
-                            else if (a && luigi_counter[1])
+                            else if (a && mario_counter[1])
                                 begin
                                     NEXT_STATE = RUN_2_L;
-                                    luigi_counter_in = 24'b0;
+                                    mario_counter_in = 24'b0;
                                 end
-                            else if (a && ~luigi_counter[1])
+                            else if (a && ~mario_counter[1])
                                 begin
                                     NEXT_STATE = RUN_1_L;
                                     if (counter2[0] == 1'b1)
                                         begin
-                                            luigi_counter_in = luigi_counter + 24'b1;
+                                            mario_counter_in = mario_counter + 24'b1;
                                             counter2_in = 24'b0;
                                         end
                                     else 
                                         begin
-                                            luigi_counter_in = luigi_counter;
+                                            mario_counter_in = mario_counter;
                                             counter2_in = counter2 + 24'b1;
                                         end
                                 end
@@ -629,9 +561,8 @@ module luigi_movem (
                     
                     RUN_2_L:
                         begin
-                            luigi_x_motion_input = (~10'd2) + 1'b1;
-                            luigi_y_motion_input = 10'd0;
-                            at_edge_in = 1'b0;
+                            mario_x_motion_input = (~10'd2) + 1'b1;
+                            mario_y_motion_input = 10'd0;
                             flag_in = flag;
                             sr_in  = 1'b0;
                             sl_in  = 1'b0;
@@ -648,50 +579,41 @@ module luigi_movem (
                             gr_in  = 1'b0;
                             gl_in  = 1'b0;
                             di_in  = 1'b0;
-                            if (luigi_x + luigi_x_motion <= process_from_mario)
+                            if (mario_x + mario_x_motion <= 10'd1)
                                 begin
-                                    luigi_x_motion_input = 10'd0;
-                                    at_edge_in = 1'b1;
-                                end
-										      if (luigi_x + 10'd26 > 10'd101 && luigi_x < 10'd99 + 10'd62 && luigi_y > 10'd320 && d)
-                                begin
-                                    luigi_x_motion_input = 10'd0;
-                                end
- if (luigi_x + 10'd26 > 10'd641 && luigi_x < 10'd639 + 10'd62 && luigi_y > 10'd320 && d)
-                                begin
-                                    luigi_x_motion_input = 10'd0;
+                                    mario_x_motion_input = 10'd0;
                                 end
                             if (~w)
                                 begin
                                     flag_in = 1'b0;
                                 end
-                            if (luigi_alive == 1'd0)
+                            if (mario_alive == 1'd0)
                                 begin
                                     NEXT_STATE = DIE;
-                                    luigi_x_motion_input = 10'd0;
-                                    luigi_y_motion_input = ~(10'd15) + 1'd1;
+                                    mario_x_motion_input = 10'd0;
+                                    mario_y_motion_input = ~(10'd15) + 1'd1;
                                 end
                             else if (w && ~flag)
                                 begin
                                     NEXT_STATE = JUMP_L;
                                     flag_in = 1'b1;
                                 end
-                            else if (a && luigi_counter[1])
+                            else if (a && mario_counter[1])
                                 begin
                                     NEXT_STATE = RUN_3_L;
-                                    luigi_counter_in = 24'b0;
+                                    mario_counter_in = 24'b0;
                                 end
-                            else if (a && ~luigi_counter[1])
+                            else if (a && ~mario_counter[1])
                                 begin
                                     NEXT_STATE = RUN_2_L;
                                     if (counter2[0] == 1'b1)
                                         begin
-                                            luigi_counter_in = luigi_counter + 24'b1;
+                                            mario_counter_in = mario_counter + 24'b1;
                                             counter2_in = 24'b0;
                                         end
                                     else 
                                         begin
-                                            luigi_counter_in = luigi_counter;
+                                            mario_counter_in = mario_counter;
                                             counter2_in = counter2 + 24'b1;
                                         end
                                 end
@@ -703,9 +625,8 @@ module luigi_movem (
                     
                     RUN_3_L:
                         begin
-                            luigi_x_motion_input = (~10'd2) + 1'b1;
-                            luigi_y_motion_input = 10'd0;
-                            at_edge_in = 1'b0;
+                            mario_x_motion_input = (~10'd2) + 1'b1;
+                            mario_y_motion_input = 10'd0;
                             flag_in = flag;
                             sr_in  = 1'b0;
                             sl_in  = 1'b0;
@@ -722,50 +643,41 @@ module luigi_movem (
                             gr_in  = 1'b0;
                             gl_in  = 1'b0;
                             di_in  = 1'b0;
-                            if (luigi_x + luigi_x_motion <= process_from_mario)
+                            if (mario_x + mario_x_motion <= 10'd1)
                                 begin
-                                    luigi_x_motion_input = 10'd0;
-                                    at_edge_in = 1'b1;
-                                end
-										      if (luigi_x + 10'd26 > 10'd101 && luigi_x < 10'd99 + 10'd62 && luigi_y > 10'd320 && d)
-                                begin
-                                    luigi_x_motion_input = 10'd0;
-                                end
- if (luigi_x + 10'd26 > 10'd641 && luigi_x < 10'd639 + 10'd62 && luigi_y > 10'd320 && d)
-                                begin
-                                    luigi_x_motion_input = 10'd0;
+                                    mario_x_motion_input = 10'd0;
                                 end
                             if (~w)
                                 begin
                                     flag_in = 1'b0;
                                 end
-                            if (luigi_alive == 1'd0)
+                            if (mario_alive == 1'd0)
                                 begin
                                     NEXT_STATE = DIE;
-                                    luigi_x_motion_input = 10'd0;
-                                    luigi_y_motion_input = ~(10'd15) + 1'd1;
+                                    mario_x_motion_input = 10'd0;
+                                    mario_y_motion_input = ~(10'd15) + 1'd1;
                                 end
                             else if (w && ~flag)
                                 begin
                                     NEXT_STATE = JUMP_L;
                                     flag_in = 1'b1;
                                 end
-                            else if (a && luigi_counter[1])
+                            else if (a && mario_counter[1])
                                 begin
                                     NEXT_STATE = RUN_1_L;
-                                    luigi_counter_in = 24'b0;
+                                    mario_counter_in = 24'b0;
                                 end
-                            else if (a && ~luigi_counter[1])
+                            else if (a && ~mario_counter[1])
                                 begin
                                     NEXT_STATE = RUN_3_L;
                                     if (counter2[0] == 1'b1)
                                         begin
-                                            luigi_counter_in = luigi_counter + 24'b1;
+                                            mario_counter_in = mario_counter + 24'b1;
                                             counter2_in = 24'b0;
                                         end
                                     else 
                                         begin
-                                            luigi_counter_in = luigi_counter;
+                                            mario_counter_in = mario_counter;
                                             counter2_in = counter2 + 24'b1;
                                         end
                                 end
@@ -792,8 +704,8 @@ module luigi_movem (
                             gr_in  = 1'b0;
                             gl_in  = 1'b0;
                             di_in  = 1'b0;
-                            luigi_x_motion_input = luigi_x_motion;
-                            luigi_y_motion_input = (~10'd15) + 1'd1;
+                            mario_x_motion_input = mario_x_motion;
+                            mario_y_motion_input = (~10'd15) + 1'd1;
                             flag_in = 1'b1;
                             NEXT_STATE = IN_AIR_R;
                         end
@@ -815,8 +727,8 @@ module luigi_movem (
                             gr_in  = 1'b0;
                             gl_in  = 1'b0;
                             di_in  = 1'b0;
-                            luigi_x_motion_input = luigi_x_motion;
-                            luigi_y_motion_input = (~10'd15) + 1'd1;
+                            mario_x_motion_input = mario_x_motion;
+                            mario_y_motion_input = (~10'd15) + 1'd1;
                             flag_in = 1'b1;
                             NEXT_STATE = IN_AIR_L;
                         end
@@ -838,44 +750,44 @@ module luigi_movem (
                             gr_in  = 1'b0;
                             gl_in  = 1'b0;
                             di_in  = 1'b0;
-                            if (a && ~d && luigi_x_motion_input == 10'd0)
+                            if (a && ~d && mario_x_motion_input == 10'd0)
                                 begin
-                                    luigi_x_motion_input = (~10'd2) + 1'b1;
+                                    mario_x_motion_input = (~10'd2) + 1'b1;
         
-                                    if (luigi_x + luigi_x_motion_input <= 10'd1)
+                                    if (mario_x + mario_x_motion_input <= 10'd1)
                                         begin
-                                            luigi_x_motion_input = 10'd0;
+                                            mario_x_motion_input = 10'd0;
                                         end
                                 end
-                            else if (~a && d && luigi_x_motion_input == 10'd0)
+                            else if (~a && d && mario_x_motion_input == 10'd0)
                                 begin
-                                    luigi_x_motion_input = 10'd2;
-                                    if (luigi_x + luigi_x_motion_input >= process_from_mario + 10'd639)
+                                    mario_x_motion_input = 10'd2;
+                                    if (mario_x + mario_x_motion_input >= 10'd439)
                                         begin
-                                            luigi_x_motion_input = 10'd0;
+                                            mario_x_motion_input = 10'd0;
                                         end
                                 end
                             else
                                 begin
-                                    luigi_x_motion_input = luigi_x_motion;
+                                    mario_x_motion_input = mario_x_motion;
                                 end
 
                             flag_in = 1'b1;
-                            if (luigi_alive == 1'b0)
+                            if (mario_alive == 1'b0)
                                 begin
                                     NEXT_STATE = DIE;
-                                    luigi_x_motion_input = 10'd0;
-                                    luigi_y_motion_input = ~(10'd15) + 1'd1;
+                                    mario_x_motion_input = 10'd0;
+                                    mario_y_motion_input = ~(10'd15) + 1'd1;
                                 end
                             else
                                 begin
-                                    if (luigi_in_air)
+                                    if (mario_in_air)
                                         begin
                                             NEXT_STATE = IN_AIR_R;
-                                            luigi_y_motion_input = luigi_y_motion + 1'd1;
-                                            if (luigi_y + luigi_y_motion < 10'd5)
+                                            mario_y_motion_input = mario_y_motion + 1'd1;
+                                            if (mario_y + mario_y_motion < 10'd5)
                                                 begin
-                                                    luigi_y_motion_input = (~luigi_y_motion) + 10'd1;
+                                                    mario_y_motion_input = (~mario_y_motion) + 10'd1;
                                                 end
                                         end
                                     else
@@ -888,7 +800,7 @@ module luigi_movem (
                                                 begin
                                                     NEXT_STATE = GLIDE_R;
                                                 end
-                                            luigi_y_motion_input = 10'd0;
+                                            mario_y_motion_input = 10'd0;
                                             if (w)
                                                 begin
                                                     flag_in = 1'b1;
@@ -918,45 +830,44 @@ module luigi_movem (
                             gr_in  = 1'b0;
                             gl_in  = 1'b0;
                             di_in  = 1'b0;
-                            if (a && ~d && luigi_x_motion_input == 10'd0)
+                            if (a && ~d && mario_x_motion_input == 10'd0)
                                 begin
-                                    luigi_x_motion_input = (~10'd2) + 1'b1;
+                                    mario_x_motion_input = (~10'd2) + 1'b1;
         
-                                    if (luigi_x + luigi_x_motion_input <= process_from_mario)
+                                    if (mario_x + mario_x_motion_input <= 10'd1)
                                         begin
-                                            luigi_x_motion_input = 10'd0;
-                                            at_edge_in = 1'b1;
+                                            mario_x_motion_input = 10'd0;
                                         end
                                 end
-                            else if (~a && d && luigi_x_motion_input == 10'd0)
+                            else if (~a && d && mario_x_motion_input == 10'd0)
                                 begin
-                                    luigi_x_motion_input = 10'd2;
-                                    if (luigi_x + luigi_x_motion_input >= process_from_mario + 10'd639)
+                                    mario_x_motion_input = 10'd2;
+                                    if (mario_x + mario_x_motion_input >= 10'd439)
                                         begin
-                                            luigi_x_motion_input = 10'd0;
+                                            mario_x_motion_input = 10'd0;
                                         end
                                 end
                             else
                                 begin
-                                    luigi_x_motion_input = luigi_x_motion;
+                                    mario_x_motion_input = mario_x_motion;
                                 end
 
                             flag_in = 1'b1;
-                            if (luigi_alive == 1'b0)
+                            if (mario_alive == 1'b0)
                                 begin
                                     NEXT_STATE = DIE;
-                                    luigi_x_motion_input = 10'd0;
-                                    luigi_y_motion_input = ~(10'd15) + 1'd1;
+                                    mario_x_motion_input = 10'd0;
+                                    mario_y_motion_input = ~(10'd15) + 1'd1;
                                 end
                             else
                                 begin
-                                    if (luigi_in_air)
+                                    if (mario_in_air)
                                         begin
                                             NEXT_STATE = IN_AIR_L;
-                                            luigi_y_motion_input = luigi_y_motion + 1'd1;
-                                            if (luigi_y + luigi_y_motion < 10'd5)
+                                            mario_y_motion_input = mario_y_motion + 1'd1;
+                                            if (mario_y + mario_y_motion < 10'd5)
                                                 begin
-                                                    luigi_y_motion_input = (~luigi_y_motion) + 10'd1;
+                                                    mario_y_motion_input = (~mario_y_motion) + 10'd1;
                                                 end
                                         end
                                     else
@@ -969,7 +880,7 @@ module luigi_movem (
                                                 begin
                                                     NEXT_STATE = GLIDE_R;
                                                 end
-                                            luigi_y_motion_input = 10'd0;
+                                            mario_y_motion_input = 10'd0;
                                             if (w)
                                                 begin
                                                     flag_in = 1'b1;
@@ -984,8 +895,7 @@ module luigi_movem (
                     
                     GLIDE_R:
                         begin
-                            luigi_x_motion_input = luigi_x_motion;
-                            at_edge_in = 1'b0;
+                            mario_x_motion_input = mario_x_motion;
                             sr_in  = 1'b0;
                             sl_in  = 1'b0;
                             rr1_in = 1'b0;
@@ -1001,48 +911,47 @@ module luigi_movem (
                             gr_in  = 1'b1;
                             gl_in  = 1'b0;
                             di_in  = 1'b0;
-                            if (luigi_x + luigi_x_size >= process_from_mario + 10'd640)
-                                begin
-                                    luigi_x_motion_input = 10'd0;
-                                end
-                            else if (luigi_x <= process_from_mario)
-                                begin
-                                    luigi_x_motion_input = 10'd0;
-                                    at_edge_in = 1'b1;
-                                end
-                            if (luigi_alive == 1'd0)
+                            if (mario_alive == 1'd0)
                                 begin
                                     NEXT_STATE = DIE;
-                                    luigi_x_motion_input = 10'd0;
-                                    luigi_y_motion_input = ~(10'd15) + 1'd1;
+                                    mario_x_motion_input = 10'd0;
+                                    mario_y_motion_input = ~(10'd15) + 1'd1;
+                                end
+                            else if (mario_x + mario_x_size >= mario_x_max)
+                                begin
+                                    mario_x_motion_input = 10'd0;
+                                end
+                            else if (mario_x <= process + 10'd0)
+                                begin
+                                    mario_x_motion_input = 10'd0;
                                 end
                             else
                                 begin
-                                    if (luigi_x_motion == 10'd0)
+                                    if (mario_x_motion == 10'd0)
                                         begin
                                             NEXT_STATE = STAND_R;
                                         end
-                                    else if (luigi_x_motion == 10'd1)
+                                    else if (mario_x_motion == 10'd1)
                                         begin
                                             NEXT_STATE = RUN_1_R;
                                         end
-                                    else if (luigi_x_motion == 10'd2)
+                                    else if (mario_x_motion == 10'd2)
                                         begin
                                             NEXT_STATE = RUN_2_R;
                                         end
-                                    else if (luigi_x_motion == 10'd3)
+                                    else if (mario_x_motion == 10'd3)
                                         begin
                                             NEXT_STATE = RUN_3_R;
                                         end
-                                    else if (luigi_x_motion == (~10'd1) + 1'b1)
+                                    else if (mario_x_motion == (~10'd1) + 1'b1)
                                         begin
                                             NEXT_STATE = RUN_1_L;
                                         end
-                                    else if (luigi_x_motion == (~10'd2) + 1'b1)
+                                    else if (mario_x_motion == (~10'd2) + 1'b1)
                                         begin
                                             NEXT_STATE = RUN_2_L;
                                         end
-                                    else if (luigi_x_motion == (~10'd3) + 1'b1)
+                                    else if (mario_x_motion == (~10'd3) + 1'b1)
                                         begin
                                             NEXT_STATE = RUN_3_L;
                                         end
@@ -1053,8 +962,7 @@ module luigi_movem (
 
                     GLIDE_L:
                         begin
-                            luigi_x_motion_input = luigi_x_motion;
-                            at_edge_in = 1'b0;
+                            mario_x_motion_input = mario_x_motion;
                             sr_in  = 1'b0;
                             sl_in  = 1'b0;
                             rr1_in = 1'b0;
@@ -1070,48 +978,47 @@ module luigi_movem (
                             gr_in  = 1'b0;
                             gl_in  = 1'b1;
                             di_in  = 1'b0;
-                            if (luigi_x + luigi_x_size >= process_from_mario + 10'd640)
-                                begin
-                                    luigi_x_motion_input = 10'd0;
-                                end
-                            else if (luigi_x <= process_from_mario)
-                                begin
-                                    luigi_x_motion_input = 10'd0;
-                                    at_edge_in = 1'b1;
-                                end
-                            if (luigi_alive == 1'd0)
+                            if (mario_alive == 1'd0)
                                 begin
                                     NEXT_STATE = DIE;
-                                    luigi_x_motion_input = 10'd0;
-                                    luigi_y_motion_input = ~(10'd15) + 1'd1;
+                                    mario_x_motion_input = 10'd0;
+                                    mario_y_motion_input = ~(10'd15) + 1'd1;
+                                end
+                            else if (mario_x + mario_x_size >= mario_x_max)
+                                begin
+                                    mario_x_motion_input = 10'd0;
+                                end
+                            else if (mario_x <= process + 10'd0)
+                                begin
+                                    mario_x_motion_input = 10'd0;
                                 end
                             else
                                 begin
-                                    if (luigi_x_motion == 10'd0)
+                                    if (mario_x_motion == 10'd0)
                                         begin
                                             NEXT_STATE = STAND_L;
                                         end
-                                    else if (luigi_x_motion == 10'd1)
+                                    else if (mario_x_motion == 10'd1)
                                         begin
                                             NEXT_STATE = RUN_1_R;
                                         end
-                                    else if (luigi_x_motion == 10'd2)
+                                    else if (mario_x_motion == 10'd2)
                                         begin
                                             NEXT_STATE = RUN_2_R;
                                         end
-                                    else if (luigi_x_motion == 10'd3)
+                                    else if (mario_x_motion == 10'd3)
                                         begin
                                             NEXT_STATE = RUN_3_R;
                                         end
-                                    else if (luigi_x_motion == (~10'd1) + 1'b1)
+                                    else if (mario_x_motion == (~10'd1) + 1'b1)
                                         begin
                                             NEXT_STATE = RUN_1_L;
                                         end
-                                    else if (luigi_x_motion == (~10'd2) + 1'b1)
+                                    else if (mario_x_motion == (~10'd2) + 1'b1)
                                         begin
                                             NEXT_STATE = RUN_2_L;
                                         end
-                                    else if (luigi_x_motion == (~10'd3) + 1'b1)
+                                    else if (mario_x_motion == (~10'd3) + 1'b1)
                                         begin
                                             NEXT_STATE = RUN_3_L;
                                         end
@@ -1138,38 +1045,26 @@ module luigi_movem (
                             gl_in  = 1'b0;
                             di_in  = 1'b1;
                             NEXT_STATE = DIE;
-                            luigi_y_motion_input = luigi_y_motion + 1'd1;
+                            mario_y_motion_input = mario_y_motion + 1'd1;
                         end
                 endcase
                 
-                luigi_x_pos_input = luigi_x + luigi_x_motion;
-                if (luigi_x_pos_input >= luigi_x_max)
+                mario_x_pos_input = mario_x + mario_x_motion;
+                if (mario_x_pos_input >= mario_x_max)
                     begin
-                        luigi_x_pos_input = luigi_x_max;
+                        mario_x_pos_input = mario_x_max;
                     end
-                if (luigi_in_air || (STATE == DIE))
+                if (mario_in_air || (STATE == DIE))
                     begin
-                        luigi_y_pos_input = luigi_y + luigi_y_motion;
-                        if ((STATE == DIE) && (luigi_y + luigi_y_motion >= luigi_y_max))
+                        mario_y_pos_input = mario_y + mario_y_motion;
+                        if ((STATE == DIE) && (mario_y + mario_y_motion >= mario_y_max))
                             begin
-                                luigi_y_pos_input = luigi_y_max;
+                                mario_y_pos_input = mario_y_max;
                             end
                     end
                 else
                     begin
-                        luigi_y_pos_input = altitude;
-                    end
-               if ((luigi_x_pos_input + 10'd26 > mario_x) && (mario_x + 10'd26 > luigi_x_pos_input))
-                    begin
-                        if (luigi_y_pos_input == mario_y)
-                            begin
-                                luigi_x_pos_input = luigi_x;
-                            end
-                        else
-                            begin
-                                luigi_x_pos_input = luigi_x_pos_input;
-                            end
-                        
+                        mario_y_pos_input = level;
                     end
             end
         else
@@ -1193,78 +1088,78 @@ module luigi_movem (
     end
 endmodule
                 
-module luigi_image (
+module mario_image (
         input Clk, Reset, frame_clk,
-        input [9:0] luigi_x,
+        input [9:0] mario_x,
         input sl, sr, rr1, rr2, rr3, rl1, rl2, rl3, jr, jl, ir, gr, gl, di,il,
-        input [23:0] luigi_sl, luigi_sr, luigi_rl1, luigi_rl2, luigi_rl3, luigi_rr1, luigi_rr2, luigi_rr3, luigi_jr, luigi_jl, luigi_die,
-        output [23:0] luigi_pic_out
+        input [23:0] mario_sl, mario_sr, mario_rl1, mario_rl2, mario_rl3, mario_rr1, mario_rr2, mario_rr3, mario_jr, mario_jl, mario_die,
+        output [23:0] mario_pic_out
 );
     always_ff @ (posedge Clk)
         begin
             if (sl == 1'b1)
                 begin
-                    luigi_pic_out = luigi_sl;
+                    mario_pic_out = mario_sl;
                 end
             else if (sr == 1'b1)
                 begin
-                    luigi_pic_out = luigi_sr;
+                    mario_pic_out = mario_sr;
                 end
             else if (rr1 == 1'b1)
                 begin
-                    luigi_pic_out = luigi_rr1;
+                    mario_pic_out = mario_rr1;
                 end
             else if (rr2 == 1'b1)
                 begin
-                    luigi_pic_out = luigi_rr2;
+                    mario_pic_out = mario_rr2;
                 end
             else if (rr3 == 1'b1)
                 begin
-                    luigi_pic_out = luigi_rr3;
+                    mario_pic_out = mario_rr3;
                 end
             else if (rl1 == 1'b1)
                 begin
-                    luigi_pic_out = luigi_rl1;
+                    mario_pic_out = mario_rl1;
                 end
             else if (rl2 == 1'b1)
                 begin
-                    luigi_pic_out = luigi_rl2;
+                    mario_pic_out = mario_rl2;
                 end
             else if (rl3 == 1'b1)
                 begin
-                    luigi_pic_out = luigi_rl3;
+                    mario_pic_out = mario_rl3;
                 end
             else if (jr == 1'b1)
                 begin
-                    luigi_pic_out = luigi_jr;
+                    mario_pic_out = mario_jr;
                 end
             else if (jl == 1'b1)
                 begin
-                    luigi_pic_out = luigi_jl;
+                    mario_pic_out = mario_jl;
                 end
             else if (ir == 1'b1)
                 begin
-                    luigi_pic_out = luigi_jr;
+                    mario_pic_out = mario_jr;
                 end
             else if (il == 1'b1)
                 begin
-                    luigi_pic_out = luigi_jl;
+                    mario_pic_out = mario_jl;
                 end
             else if (gr == 1'b1)
                 begin
-                    luigi_pic_out = luigi_jr;
+                    mario_pic_out = mario_jr;
                 end
             else if (gl == 1'b1)
                 begin
-                    luigi_pic_out = luigi_jl;
+                    mario_pic_out = mario_jl;
                 end
             else if (di == 1'b1)
                 begin
-                    luigi_pic_out = luigi_die;
+                    mario_pic_out = mario_die;
                 end
             else
                 begin
-                    luigi_pic_out = luigi_sr;
+                    mario_pic_out = mario_sr;
                 end
             
         end

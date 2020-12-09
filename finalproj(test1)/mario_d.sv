@@ -57,7 +57,7 @@ module mariod_movem (
 
     parameter [9:0] mariod_x_size = 26;
 
-    logic [9:0] mariod_x_motion, level;
+    logic [9:0] mariod_x_motion, altitude;
     logic [9:0] mariod_x_pos_input, mariod_x_motion_input, mariod_y_pos_input, mariod_y_motion_input;
     logic [9:0] process_input;
 
@@ -72,12 +72,30 @@ module mariod_movem (
         if (mariod_y + mariod_y_motion >= 10'd384)
             begin
                 mariod_in_air = 1'b0;
-                level = 10'd384;
+                altitude = 10'd384;
             end
+        // 在此处设置空气墙的位置和高度
+        else if ((mariod_x + 10'd26 > 10'd100) && (mariod_x < 10'd100 + 10'd62) && (mariod_y + mariod_y_motion >= 10'd320) && (mariod_y + mariod_y_motion < 10'd384))
+            begin
+                mariod_in_air = 1'b0;
+                altitude = 10'd320;
+            end
+        else if ((mariod_x + 10'd26 > 10'd640) && (mariod_x < 10'd640 + 10'd62) && (mariod_y + mariod_y_motion >= 10'd320) && (mariod_y + mariod_y_motion < 10'd384))
+            begin
+                mariod_in_air = 1'b0;
+                altitude = 10'd320;
+            end
+        else if ((mariod_x + 10'd26 > luigi_x) && (mariod_x < luigi_x + 10'd26) && (mariod_y + mariod_y_motion >= luigi_y) && (mariod_y + mariod_y_motion < 10'd384))
+            begin
+                mariod_in_air = 1'b0;
+                altitude = luigi_y - 10'd32;
+            end
+
+        // 下面的部分不用动
         else
             begin
                 mariod_in_air = 1'b1;
-                level = 10'd384;
+                altitude = 10'd384;
             end
     end
 
@@ -242,6 +260,10 @@ module mariod_movem (
                                     NEXT_STATE = STAND_R;
                                     flag_in = 1'b0;
                                 end
+                            else if (mariod_in_air)
+                                begin
+                                    NEXT_STATE = IN_AIR_R;
+                                end
                             else
                                 begin
                                     NEXT_STATE = STAND_R;
@@ -296,6 +318,10 @@ module mariod_movem (
                                     NEXT_STATE = STAND_L;
                                     flag_in = 1'b0;
                                 end
+                            else if (mariod_in_air)
+                                begin
+                                    NEXT_STATE = IN_AIR_L;
+                                end
                             else
                                 begin
                                     NEXT_STATE = STAND_L;
@@ -327,6 +353,15 @@ module mariod_movem (
                                 begin
                                     mariod_x_motion_input = 10'd0;
                                 end
+                            // kong qi qiang
+                            if (mariod_x + 10'd26 > 10'd101 && mariod_x < 10'd99 + 10'd62 && mariod_y > 10'd320 && d)
+                                begin
+                                    mariod_x_motion_input = 10'd0;
+                                end
+                            if (mariod_x + 10'd26 > 10'd641 && mariod_x < 10'd639 + 10'd62 && mariod_y > 10'd320 && d)
+                                begin
+                                    mariod_x_motion_input = 10'd0;
+                                end
                             if (~w)
                                 begin
                                     flag_in = 1'b0;
@@ -336,6 +371,10 @@ module mariod_movem (
                                     NEXT_STATE = DIE;
                                     mariod_x_motion_input = 10'd0;
                                     mariod_y_motion_input = ~(9'd15) + 1'd1;
+                                end
+                            else if (mariod_in_air)
+                                begin
+                                    NEXT_STATE = IN_AIR_R;
                                 end
                             else if (w && ~flag)
                                 begin
@@ -391,6 +430,15 @@ module mariod_movem (
                                 begin
                                     mariod_x_motion_input = 10'd0;
                                 end
+                            // kong qi qiang
+                            if (mariod_x + 10'd26 > 10'd101 && mariod_x < 10'd99 + 10'd62 && mariod_y > 10'd320 && d)
+                                begin
+                                    mariod_x_motion_input = 10'd0;
+                                end
+                            if (mariod_x + 10'd26 > 10'd641 && mariod_x < 10'd639 + 10'd62 && mariod_y > 10'd320 && d)
+                                begin
+                                    mariod_x_motion_input = 10'd0;
+                                end
                             if (~w)
                                 begin
                                     flag_in = 1'b0;
@@ -400,6 +448,10 @@ module mariod_movem (
                                     NEXT_STATE = DIE;
                                     mariod_x_motion_input = 10'd0;
                                     mariod_y_motion_input = ~(10'd15) + 1'd1;
+                                end
+                            else if (mariod_in_air)
+                                begin
+                                    NEXT_STATE = IN_AIR_R;
                                 end
                             else if (w && ~flag)
                                 begin
@@ -455,6 +507,16 @@ module mariod_movem (
                                 begin
                                     mariod_x_motion_input = 10'd0;
                                 end
+
+                            // kong qi qiang
+                            if (mariod_x + 10'd26 > 10'd101 && mariod_x < 10'd99 + 10'd62 && mariod_y > 10'd320 && d)
+                                begin
+                                    mariod_x_motion_input = 10'd0;
+                                end
+                            if (mariod_x + 10'd26 > 10'd641 && mariod_x < 10'd639 + 10'd62 && mariod_y > 10'd320 && d)
+                                begin
+                                    mariod_x_motion_input = 10'd0;
+                                end
                             if (~w)
                                 begin
                                     flag_in = 1'b0;
@@ -464,6 +526,10 @@ module mariod_movem (
                                     NEXT_STATE = DIE;
                                     mariod_x_motion_input = 10'd0;
                                     mariod_y_motion_input = ~(10'd15) + 1'd1;
+                                end
+                            else if (mariod_in_air)
+                                begin
+                                    NEXT_STATE = IN_AIR_R;
                                 end
                             else if (w && ~flag)
                                 begin
@@ -523,6 +589,15 @@ module mariod_movem (
                                 begin
                                     mariod_x_motion_input = 10'd0;
                                 end
+                            // kong qi qiang
+                            if (mariod_x + 10'd26 > 10'd101 && mariod_x < 10'd99 + 10'd62 && mariod_y > 10'd320 && a)
+                                begin
+                                    mariod_x_motion_input = 10'd0;
+                                end
+                            if (mariod_x + 10'd26 > 10'd641 && mariod_x < 10'd639 + 10'd62 && mariod_y > 10'd320 && d)
+                                begin
+                                    mariod_x_motion_input = 10'd0;
+                                end
                             if (~w)
                                 begin
                                     flag_in = 1'b0;
@@ -532,6 +607,10 @@ module mariod_movem (
                                     NEXT_STATE = DIE;
                                     mariod_x_motion_input = 10'd0;
                                     mariod_y_motion_input = ~(10'd15) + 1'd1;
+                                end
+                            else if (mariod_in_air)
+                                begin
+                                    NEXT_STATE = IN_AIR_L;
                                 end
                             else if (w && ~flag)
                                 begin
@@ -591,6 +670,16 @@ module mariod_movem (
                                 begin
                                     mariod_x_motion_input = 10'd0;
                                 end
+
+                            // kong qi qiang
+                            if (mariod_x + 10'd26 > 10'd101 && mariod_x < 10'd99 + 10'd62 && mariod_y > 10'd320 && a)
+                                begin
+                                    mariod_x_motion_input = 10'd0;
+                                end
+                            if (mariod_x + 10'd26 > 10'd641 && mariod_x < 10'd639 + 10'd62 && mariod_y > 10'd320 && d)
+                                begin
+                                    mariod_x_motion_input = 10'd0;
+                                end
                             if (~w)
                                 begin
                                     flag_in = 1'b0;
@@ -600,6 +689,10 @@ module mariod_movem (
                                     NEXT_STATE = DIE;
                                     mariod_x_motion_input = 10'd0;
                                     mariod_y_motion_input = ~(10'd15) + 1'd1;
+                                end
+                            else if (mariod_in_air)
+                                begin
+                                    NEXT_STATE = IN_AIR_L;
                                 end
                             else if (w && ~flag)
                                 begin
@@ -659,6 +752,15 @@ module mariod_movem (
                                 begin
                                     mariod_x_motion_input = 10'd0;
                                 end
+                            // kong qi qiang
+                            if (mariod_x + 10'd26 > 10'd101 && mariod_x < 10'd99 + 10'd62 && mariod_y > 10'd320 && a)
+                                begin
+                                    mariod_x_motion_input = 10'd0;
+                                end
+                             if (mariod_x + 10'd26 > 10'd641 && mariod_x < 10'd639 + 10'd62 && mariod_y > 10'd320 && d)
+                                begin
+                                    mariod_x_motion_input = 10'd0;
+                                end                               
                             if (~w)
                                 begin
                                     flag_in = 1'b0;
@@ -668,6 +770,10 @@ module mariod_movem (
                                     NEXT_STATE = DIE;
                                     mariod_x_motion_input = 10'd0;
                                     mariod_y_motion_input = ~(10'd15) + 1'd1;
+                                end
+                            else if (mariod_in_air)
+                                begin
+                                    NEXT_STATE = IN_AIR_L;
                                 end
                             else if (w && ~flag)
                                 begin
@@ -801,6 +907,10 @@ module mariod_movem (
                                                 begin
                                                     mariod_y_motion_input = (~mariod_y_motion) + 10'd1;
                                                 end
+                                            // if (mariod_y + mariod_y_motion >= level)
+                                            //     begin
+                                            //         mariod_y_motion_input = 10'd0;
+                                            //     end
                                         end
                                     else
                                         begin
@@ -885,6 +995,10 @@ module mariod_movem (
                                                 begin
                                                     mariod_x_motion_input = 10'd0;
                                                 end
+                                            // if (mariod_y + mariod_y_motion >= level)
+                                            //     begin
+                                            //         mariod_y_motion_input = 10'd0;
+                                            //     end
                                         end
                                     else
                                         begin
@@ -911,6 +1025,7 @@ module mariod_movem (
                     
                     GLIDE_R:
                         begin
+                            mariod_y_motion_input = 10'd0;
                             mariod_x_motion_input = mariod_x_motion;
                             sr_in  = 1'b0;
                             sl_in  = 1'b0;
@@ -974,6 +1089,7 @@ module mariod_movem (
 
                     GLIDE_L:
                         begin
+                            mariod_y_motion_input = 10'd0;
                             mariod_x_motion_input = mariod_x_motion;
                             sr_in  = 1'b0;
                             sl_in  = 1'b0;
@@ -1076,7 +1192,7 @@ module mariod_movem (
                     end
                 else
                     begin
-                        mariod_y_pos_input = level;
+                        mariod_y_pos_input = altitude;
                     end
                     
                 if (mariod_x >= process + 10'd320)
@@ -1101,14 +1217,9 @@ module mariod_movem (
                             begin
                                 mariod_x_pos_input = mariod_x;
                             end
-                        else if (mariod_y_pos_input + 10'd32 == luigi_y)
-                            begin
-                                mariod_y_pos_input = luigi_y - 10'd32;
-                            end
                         else
                             begin
                                 mariod_x_pos_input = mariod_x_pos_input;
-                                mariod_y_pos_input = mariod_y_pos_input;
                             end
                         
                     end

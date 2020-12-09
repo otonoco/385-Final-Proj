@@ -4,7 +4,7 @@ module coin #(parameter coin_x_min = 10'd0;
         (
         input Reset, frame_clk, Clk,
         input [9:0] DrawX, DrawY,  
-        input process,
+        input [9:0] process,
         input coin_alive,
         input [23:0] front, side, back,
         
@@ -38,15 +38,11 @@ module coin_movem (
         output logic [9:0] coin_x, coin_y,
         output logic zhengmian, cemian, beimian, eaten
 );  
-    logic [9:0] x_ori, x_min, x_max;
+logic [9:0] x_ori, x_min, x_max;
     assign x_ori = x_ori_;
     assign x_min = x_min_;
     assign x_max = x_max_;
-    // parameter [9:0] x_ori = x_ori_;
     parameter [9:0] y_ori = 300;
-
-    // parameter [9:0] x_min = x_min_;
-    // parameter [9:0] x_max = x_max_;
     parameter [9:0] y_min = 0;
     parameter [9:0] y_max = 479;
 

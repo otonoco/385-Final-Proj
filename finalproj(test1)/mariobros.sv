@@ -50,7 +50,7 @@ module mariobros (
 
 
 
-logic Reset_h, vssig, blank, sync, VGA_Clk;
+    logic Reset_h, vssig, blank, sync, VGA_Clk;
 
 
 //=======================================================
@@ -110,12 +110,12 @@ logic Reset_h, vssig, blank, sync, VGA_Clk;
     );
 	
     HexDriver hex4 (
-            .In(mario_counter[19:16]),
+            .In(mariod_dead),
             .Out(HEX4)
     );
 
     HexDriver hex5 (
-            .In(mario_counter[23:20]),
+            .In(luigi_dead),
             .Out(HEX5)
     );
 	
@@ -186,7 +186,7 @@ logic Reset_h, vssig, blank, sync, VGA_Clk;
     // The followings are for Mario in dual-player Mode
 	logic [9:0] mariod_x, mariod_y, process1, mariod_y_motion;
     logic mariod, mariod_in_air;
-    logic [23:0] mariod_pic_out;
+    logic [23:0] mariod_pic_out,groundd,cloud,pipe_p1,pipe_p2,end_p,back_p1,back_p2,castle_p;
     logic [23:0] mariod_sr, mariod_sl, mariod_rr1, mariod_rr2, mariod_rr3, mariod_rl1, mariod_rl2, mariod_rl3, mariod_jr, mariod_jl, mariod_die; 
 	 
     luigi_d lluigi(.Clk(Clk), .Reset(Reset_h), .frame_clk(VGA_VS), .DrawX(drawxsig), .DrawY(drawysig), .luigi_alive(~luigi_dead), .keycode(keycode), .mario_x(mariod_x), .mario_y(mariod_y), .luigi_x(luigi_x), .luigi_y(luigi_y), .process_from_mario(process1), .process(process2), .luigi_y_motion(luigi_y_motion), .luigi(luigi), .luigi_in_air(luigi_in_air), .luigi_pic_out(luigi_pic_out), .at_edge(luigi_at_edge), .*);
@@ -212,7 +212,7 @@ logic Reset_h, vssig, blank, sync, VGA_Clk;
 //    mario_s mmario(.Clk(Clk), .Reset(Reset_h), .frame_clk(VGA_VS), .DrawX(drawxsig), .DrawY(drawysig), .mario_alive(~mario_dead), .keycode(keycode), .mario_x(mario_x), .mario_y(mario_y), .process(process), .mario_y_motion(mario_y_motion), .mario(mario), .mario_in_air(mario_in_air), .mario_pic_out(mario_pic_out), .*);
     // color_mapper cm(.mario(mario), .luigi(luigi), .mariod(mariod), .gomba(gomba), .coin(coin), .coin_pic_out(coin_pic_out), .mario_pic_out(mario_pic_out), .mariod_pic_out(mariod_pic_out), .luigi_pic_out(luigi_pic_out), .gomba_pic_out(gomba_pic_out), .ground(groundd), .DrawX(drawxsig), .DrawY(drawysig), .Red(Red), .Green(Green), .Blue(Blue));
 
-    color_mapper cm(.mariod(mariod), .luigi(luigi), .gomba(gomba), .coin1(coin1), .coin2(coin2), .mariod_pic_out(mariod_pic_out), .luigi_pic_out(luigi_pic_out), .gomba_pic_out(gomba_pic_out), .coin1_pic_out(coin1_pic_out), .coin2_pic_out(coin2_pic_out), .ground(groundd), .DrawX(drawxsig), .DrawY(drawysig), .Red(Red), .Green(Green), .Blue(Blue));
+    color_mapper cm(.mariod(mariod), .luigi(luigi), .gomba(gomba), .coin1(coin1), .coin2(coin2), .mariod_pic_out(mariod_pic_out), .luigi_pic_out(luigi_pic_out), .gomba_pic_out(gomba_pic_out), .coin1_pic_out(coin1_pic_out), .coin2_pic_out(coin2_pic_out), .ground(groundd), .pipe_1(pipe1),.pipe_2(pipe2),.pipe1(pipe_p1),.pipe2(pipe_p2),.castle(castle),.castle_p(castle_p),.cloud(cloud),.back1(back_p1),.back2(back_p2),.end_p(end_p),.endd(endd),.mariod_dead(mariod_dead),.luigi_dead(luigi_dead),.DrawX(drawxsig), .DrawY(drawysig), .Red(Red), .Green(Green), .Blue(Blue));
 
     // The followings are for coins
     logic coin1_alive, coin1;
@@ -262,6 +262,7 @@ logic Reset_h, vssig, blank, sync, VGA_Clk;
     DEAD deaddd(.Clk(VGA_Clk), .read_addr((drawxsig - mariod_x + process1)%26 + 26 * ((drawysig - mariod_y)%32)), .data_out(mariod_die));
 	 
 	// The followings are for loading sprites for Luigi in Dual-Player mode
+	
     STANDL_R stand_rl(.Clk(VGA_Clk), .read_addr((drawxsig - luigi_x + process1)%26 + 26 * ((drawysig - luigi_y)%32)), .data_out(luigi_sr));
     STANDL_R stand_ll(.Clk(VGA_Clk), .read_addr((10'd25 - drawxsig + luigi_x - process1)%26 + 26 * ((drawysig - luigiy)%32)), .data_out(luigi_sl));
     WRL_1 walk_rigt_1l(.Clk(VGA_Clk), .read_addr((drawxsig - luigi_x + process1)%26 + 26 * ((drawysig - luigi_y)%32)), .data_out(luigi_rr1));
@@ -275,8 +276,46 @@ logic Reset_h, vssig, blank, sync, VGA_Clk;
     DEADL deaddl(.Clk(VGA_Clk), .read_addr((drawxsig - luigi_x + process1)%26 + 26 * ((drawysig - luigi_y)%32)), .data_out(luigi_die));
 	 
     // The following is for loading the sprite for the ground
-    BACKGROUND ground(.Clk(VGA_Clk),  .read_addr(drawxsig % 32 + 32* (drawysig%64)),  .data_out(groundd));
+    BACKGROUND ground(.Clk(VGA_Clk),  .read_addr(drawxsig % 32 + 32* (drawysig%64)), .data_out(groundd));
+    RC c(.Clk(VGA_Clk), .read_addr(drawxsig % 96 + 96 * (drawysig % 48)), .data_out(cloud));
+    RB1 bc1(.Clk(VGA_Clk), .read_addr(drawxsig % 2 + 2 * (drawysig % 2)), .data_out(back_p1));
+    RB2 bc2(.Clk(VGA_Clk), .read_addr(drawxsig % 2 + 2 * (drawysig % 2)), .data_out(back_p2));
+
+    RP p1(.Clk(VGA_Clk), .read_addr((drawxsig - pipe_x1 + process1) % 64 + 64 * ((drawysig - pipe_y1) % 62)), .data_out(pipe_p1));
+    RP p2(.Clk(VGA_Clk), .read_addr((drawxsig - pipe_x2 + process1) % 64 + 64 * ((drawysig - pipe_y2) % 62)), .data_out(pipe_p2));
+	RE end_d(.Clk(VGA_Clk), .read_addr((drawxsig - end_x) % 120 + 120 * ((drawysig - end_y) % 46)), .data_out(end_p));
+
+    endscreen_po po(.DrawX(drawxsig), .DrawY(drawysig), .end_x(end_x), .end_y(end_y), .endd(endd));
+    is_pipe ip1(.DrawX(drawxsig), .DrawY(drawysig), .pipe_x(pipe_x1), .pipe_y(pipe_y1), .process(process1), .pipe(pipe1));
+    is_pipe ip2(.DrawX(drawxsig), .DrawY(drawysig), .pipe_x(pipe_x2), .pipe_y(pipe_y2), .process(process1), .pipe(pipe2));
+    is_castle ic(.DrawX(drawxsig), .DrawY(drawysig), .castle_x(castle_x), .castle_y(castle_y),.process(process1), .castle(castle));
+	read_castle rc(.Clk(VGA_Clk), .read_addr((drawxsig - castle_x + process1) % 88 + 88 * ((drawysig - castle_y) % 64)), .data_out(castle_p));
+	logic endd, pipe1, pipe2, castle;
+    logic [9:0] end_x, end_y, pipe_x1, pipe_y1, pipe_x2, pipe_y2, castle_x, castle_y;
+    assign end_x = 10'd200;
+    assign end_y = 10'd200;
+    assign pipe_x1 = 10'd100;
+    assign pipe_y1 = 10'd354;
+    assign pipe_x2 = 10'd640;
+    assign pipe_y2 = 10'd354;
+    assign castle_x = 10'd750;
+    assign castle_y = 10'd352;
 	 
-	 
+	// logic ram_init_error;
+	// logic ram_init_done;
+	// sdcard_init si(
+	//	.clk50(Clk),
+	//	.reset(Reset_h),          //starts as soon reset is deasserted
+	//	.ram_we(DRAM_WE_N),         //RAM interface pins
+	//	.ram_address(DRAM_ADDR),
+	//	.ram_data,
+	//	.ram_op_begun,   //acknowledge from RAM to move to next word
+	//	.ram_init_error(ram_init_error), //error initializing
+	//	.ram_init_done(ram_init_done),  //done with reading all MAX_RAM_ADDRESS words
+	//	.cs_bo, //SD card pins (also make sure to disable USB CS if using DE10-Lite)
+	//	.sclk_o(SPI0_SCLK),
+	//	.mosi_o(SPI0_MOSI),
+	//	.miso_i(SPI0_MISO)
+//);
 	 
 endmodule

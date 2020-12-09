@@ -55,14 +55,14 @@ module collision(
                             end
                         else
                             begin
-                                mario_dead_in = 1'b0;
-                                gomba_dead_in1 = 1'b0;
+                                mario_dead_in = mario_dead;
+                                gomba_dead_in1 = gomba_dead;
                             end
                     end
                 else
                     begin
-                        mario_dead_in = 1'b0;
-                        gomba_dead_in1 = 1'b0;
+                        mario_dead_in = mario_dead;
+                        gomba_dead_in1 = gomba_dead;
                     end
             end
         else
@@ -90,14 +90,14 @@ module collision(
                             end
                         else
                             begin
-                                luigi_dead_in = 1'b0;
-                                gomba_dead_in2 = 1'b0;
+                                luigi_dead_in = luigi_dead;
+                                gomba_dead_in2 = gomba_dead;
                             end
                     end
                 else
                     begin
-                        luigi_dead_in = 1'b0;
-                        gomba_dead_in2 = 1'b0;
+                        luigi_dead_in = luigi_dead;
+                        gomba_dead_in2 = gomba_dead;
                     end
             end
         else
