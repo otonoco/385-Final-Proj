@@ -13,8 +13,8 @@ module front (
     end
 
 
-    always_ff @ (posedge Clk) begin
-
+    always_ff @ (posedge Clk) 
+    begin
         front <= wr3[read_addr];
     end
 

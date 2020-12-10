@@ -13,8 +13,8 @@ module RE (
     end
 
 
-    always_ff @ (posedge Clk) begin
-
+    always_ff @ (posedge Clk) 
+    begin
         data_out <= wr3[read_addr];
     end
 

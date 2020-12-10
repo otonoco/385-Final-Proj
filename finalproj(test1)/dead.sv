@@ -13,8 +13,8 @@ module DEAD (
     end
 
 
-    always_ff @ (posedge Clk) begin
-
+    always_ff @ (posedge Clk) 
+    begin
         data_out <= dead[read_addr];
     end
 

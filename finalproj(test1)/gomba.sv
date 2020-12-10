@@ -17,8 +17,32 @@ module gomba #(parameter gomba_x_min = 10'd0;
 );
     
     logic left_foot1, left_foot2, right_foot1, right_foot2, dead, disappear;
-    gomba_image g_i(.*);
+    // gomba_image g_i(.*);
     gomba_movem #(gomba_x_min, gomba_x_max, gomba_x_ori) g_m(.*);
+
+    always_ff @ (posedge Clk)
+        begin
+            if (left_foot1 || right_foot1)
+                begin
+                    gomba_pic_out = gomba_left;
+                end
+            else if (left_foot2 || right_foot2)
+                begin
+                    gomba_pic_out = gomba_right;
+                end
+            else if (dead && (~disappear))
+                begin
+                    gomba_pic_out = gomba_deadp;
+                end
+            else if (dead && disappear)
+                begin
+                    gomba_pic_out = 24'h6b8cff;
+                end
+            else
+                begin
+                    gomba_pic_out = gomba_left;
+                end
+        end
 
     always_comb
     begin
@@ -145,7 +169,7 @@ module gomba_movem #(parameter gomba_x_min = 10'd0;
     begin
         if (mario_alive && luigi_alive)
             begin
-                if (mario_dis >= luigi_dis)
+                if (mario_dis <= luigi_dis)
                     begin
                         if (mario_x < gomba_x)
                             begin
@@ -647,34 +671,34 @@ module gomba_movem #(parameter gomba_x_min = 10'd0;
     end
 endmodule
 
-module gomba_image(
-        input Clk, Reset, frame_clk,
-        input left_foot1, left_foot2, right_foot1, right_foot2, dead, disappear,
-        input [9:0] gomba_x,
-        input [23:0] gomba_left, gomba_right,gomba_deadp,
-        output [23:0] gomba_pic_out
-);
-    always_ff @ (posedge Clk)
-        begin
-            if (left_foot1 || right_foot1)
-                begin
-                    gomba_pic_out = gomba_left;
-                end
-            else if (left_foot2 || right_foot2)
-                begin
-                    gomba_pic_out = gomba_right;
-                end
-            else if (dead && (~disappear))
-                begin
-                    gomba_pic_out = gomba_deadp;
-                end
-            else if (dead && disappear)
-                begin
-                    gomba_pic_out = 24'h6b8cff;
-                end
-            else
-                begin
-                    gomba_pic_out = gomba_left;
-                end
-        end
-endmodule
+// module gomba_image(
+//         input Clk, Reset, frame_clk,
+//         input left_foot1, left_foot2, right_foot1, right_foot2, dead, disappear,
+//         input [9:0] gomba_x,
+//         input [23:0] gomba_left, gomba_right,gomba_deadp,
+//         output [23:0] gomba_pic_out
+// );
+//     always_ff @ (posedge Clk)
+//         begin
+//             if (left_foot1 || right_foot1)
+//                 begin
+//                     gomba_pic_out = gomba_left;
+//                 end
+//             else if (left_foot2 || right_foot2)
+//                 begin
+//                     gomba_pic_out = gomba_right;
+//                 end
+//             else if (dead && (~disappear))
+//                 begin
+//                     gomba_pic_out = gomba_deadp;
+//                 end
+//             else if (dead && disappear)
+//                 begin
+//                     gomba_pic_out = 24'h6b8cff;
+//                 end
+//             else
+//                 begin
+//                     gomba_pic_out = gomba_left;
+//                 end
+//         end
+// endmodule

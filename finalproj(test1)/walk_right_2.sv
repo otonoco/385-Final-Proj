@@ -13,8 +13,8 @@ module WR_2 (
     end
 
 
-    always_ff @ (posedge Clk) begin
-
+    always_ff @ (posedge Clk) 
+    begin
         data_out <= wr2[read_addr];
     end
 

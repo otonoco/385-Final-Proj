@@ -13,8 +13,8 @@ module JR (
     end
 
 
-    always_ff @ (posedge Clk) begin
-
+    always_ff @ (posedge Clk) 
+    begin
         data_out <= jump[read_addr];
     end
 

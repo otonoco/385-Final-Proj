@@ -12,6 +12,6 @@ module score (
     logic [2:0] tracker;
     assign score = tracker;
 
-    assign tracker = (~coin1_alive) + (~coin2_alive) + (~coin3_alive) + (~coin4_alive) + (~coin5_alive) + (~coin6_alive) + (~coin7_alive) - 3'd2;
+    tracker = (~coin1_alive) + (~coin2_alive) + (~coin3_alive) + (~coin4_alive) + (~coin5_alive) + (~coin6_alive) + (~coin7_alive);
 
 endmodule

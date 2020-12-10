@@ -13,8 +13,8 @@ module STANDL_R (
     end
 
 
-    always_ff @ (posedge Clk) begin
-
+    always_ff @ (posedge Clk) 
+    begin
         data_out <= stand[read_addr];
     end
 

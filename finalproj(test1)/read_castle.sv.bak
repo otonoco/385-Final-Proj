@@ -1,21 +1,21 @@
-module DEAD (
+module read_castle (
         input [18:0] read_addr,
         input Clk,
 
         output logic [23:0] data_out
 );
 
-    logic [23:0] dead [0:831];
+    logic [23:0] wr3 [0:5631];
 
     initial
     begin
-        $readmemh("luigi_dd.txt", dead);
+        $readmemh("castle.txt", wr3);
     end
 
 
     always_ff @ (posedge Clk) begin
 
-        data_out <= dead[read_addr];
+        data_out <= wr3[read_addr];
     end
 
 endmodule

@@ -18,8 +18,32 @@ module coin #(parameter coin_x_min = 10'd0;
     assign x_ori_ = coin_x_ori;
     logic zhengmian, cemian, beimian, eaten;
 
-    coin_image c_i(.*);
+    // coin_image c_i(.*);
     coin_movem c_m(.*);
+
+    always_ff @( posedge Clk)
+    begin
+        if (zhengmian)
+            begin
+                coin_pic_out = front;
+            end
+        else if (cemian)
+            begin
+                coin_pic_out = side;
+            end
+        else if (beimian)
+            begin
+                coin_pic_out = back;
+            end
+        else if (eaten)
+            begin
+                coin_pic_out = 24'h6b8cff;
+            end
+        else
+            begin
+                coin_pic_out = front;
+            end
+    end
 
     always_comb
     begin
@@ -38,7 +62,7 @@ module coin_movem (
         output logic [9:0] coin_x, coin_y,
         output logic zhengmian, cemian, beimian, eaten
 );  
-logic [9:0] x_ori, x_min, x_max;
+    logic [9:0] x_ori, x_min, x_max;
     assign x_ori = x_ori_;
     assign x_min = x_min_;
     assign x_max = x_max_;
@@ -53,9 +77,9 @@ logic [9:0] x_ori, x_min, x_max;
     logic [23:0] counter2, counter2_in;
 
     enum logic [1:0] {ZHENG,
-                CE,
-                FAN,
-                EAT} STATE, NEXT_STATE;
+                      CE,
+                      FAN,
+                      EAT} STATE, NEXT_STATE;
 
     logic frame_clk_delayed, frame_clk_rising_edge;
     always_ff @ (posedge Clk) 
@@ -231,33 +255,33 @@ logic [9:0] x_ori, x_min, x_max;
     end
 endmodule
 
-module coin_image (
-        input logic Clk, Reset, frame_clk,
-        input logic  zhengmian, cemian, beimian, eaten,
-        input [23:0] front, side, back,
-        output [23:0] coin_pic_out
-);
-    always_ff @( posedge Clk)
-    begin
-        if (zhengmian)
-            begin
-                coin_pic_out = front;
-            end
-        else if (cemian)
-            begin
-                coin_pic_out = side;
-            end
-        else if (beimian)
-            begin
-                coin_pic_out = back;
-            end
-        else if (eaten)
-            begin
-                coin_pic_out = 24'h6b8cff;
-            end
-        else
-            begin
-                coin_pic_out = front;
-            end
-    end
-endmodule
+// module coin_image (
+//         input logic Clk, Reset, frame_clk,
+//         input logic  zhengmian, cemian, beimian, eaten,
+//         input [23:0] front, side, back,
+//         output [23:0] coin_pic_out
+// );
+//     always_ff @( posedge Clk)
+//     begin
+//         if (zhengmian)
+//             begin
+//                 coin_pic_out = front;
+//             end
+//         else if (cemian)
+//             begin
+//                 coin_pic_out = side;
+//             end
+//         else if (beimian)
+//             begin
+//                 coin_pic_out = back;
+//             end
+//         else if (eaten)
+//             begin
+//                 coin_pic_out = 24'h6b8cff;
+//             end
+//         else
+//             begin
+//                 coin_pic_out = front;
+//             end
+//     end
+// endmodule

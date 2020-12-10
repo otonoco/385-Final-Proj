@@ -1,13 +1,14 @@
 module is_pipe(
         input [9:0] DrawX, DrawY,  
         input [9:0] process, 
-        output logic pipe,
-        input [9:0] pipe_x, pipe_y
+        output logic coin,
+        input [9:0] coin_x, coin_y,
 );
+
 
     always_comb
     begin
-        if (pipe_x < process + DrawX && DrawX + process < pipe_x + 10'd62 && DrawY > pipe_y && DrawY < pipe_y + 10'd64)
+        if (pipe_x < process + DrawX && DrawX + process < pipe_x + 10'd64 && DrawY > pipe_y && DrawY < pipe_y + 10'd62)
             begin
                 pipe = 1'b1;
             end

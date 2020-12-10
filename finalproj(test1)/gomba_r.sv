@@ -13,8 +13,8 @@ module gomba_r (
     end
 
 
-    always_ff @ (posedge Clk) begin
-
+    always_ff @ (posedge Clk) 
+    begin
         data_out <= gr[read_addr];
     end
 

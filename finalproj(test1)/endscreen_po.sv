@@ -1,0 +1,17 @@
+module endscreen_po (
+        input [9:0] DrawX, DrawY,
+        output logic endd,
+        input [9:0] end_x, end_y
+);
+
+    always_comb
+    begin
+        if (end_x <  DrawX && DrawX  < end_x + 10'd120 && DrawY > end_y && DrawY < end_y + 10'd36)
+            begin
+                endd = 1'b1;
+            end
+        else
+            endd = 1'b0;
+    end
+
+endmodule

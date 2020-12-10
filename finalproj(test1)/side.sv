@@ -13,8 +13,8 @@ module side (
     end
 
 
-    always_ff @ (posedge Clk) begin
-
+    always_ff @ (posedge Clk) 
+    begin
         side  <= wr3[read_addr];
     end
 

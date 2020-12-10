@@ -12,9 +12,8 @@ module back (
         $readmemh("coin3.txt", wr3);
     end
 
-
-    always_ff @ (posedge Clk) begin
-
+    always_ff @ (posedge Clk) 
+    begin
         back  <= wr3[read_addr];
     end
 

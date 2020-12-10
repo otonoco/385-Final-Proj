@@ -9,7 +9,7 @@ module mario_d (
 
         output logic [9:0] mariod_x, mariod_y, process, mariod_y_motion,
         output logic mariod, mariod_in_air,
-        
+        output logic mario_arrived,
         output logic [23:0] mariod_pic_out
 );
     logic w, s, a, d;
@@ -20,8 +20,76 @@ module mario_d (
     assign w = ((keycode[15:8] == 8'h1A) | (keycode[7:0] == 8'h1A)|(keycode[23:16] == 8'h1A) | (keycode[31:24] == 8'h1A));
     assign s = ((keycode[15:8] == 8'h16) | (keycode[7:0] == 8'h16)|(keycode[23:16] == 8'h16) | (keycode[31:24] == 8'h16));
 
-    mariod_image m_i(.*);
+    // mariod_image m_i(.*);
     mariod_movem m_m(.*);
+
+    always_ff @ (posedge Clk)
+        begin
+            if (sl == 1'b1)
+                begin
+                    mariod_pic_out = mariod_sl;
+                end
+            else if (sr == 1'b1)
+                begin
+                    mariod_pic_out = mariod_sr;
+                end
+            else if (rr1 == 1'b1)
+                begin
+                    mariod_pic_out = mariod_rr1;
+                end
+            else if (rr2 == 1'b1)
+                begin
+                    mariod_pic_out = mariod_rr2;
+                end
+            else if (rr3 == 1'b1)
+                begin
+                    mariod_pic_out = mariod_rr3;
+                end
+            else if (rl1 == 1'b1)
+                begin
+                    mariod_pic_out = mariod_rl1;
+                end
+            else if (rl2 == 1'b1)
+                begin
+                    mariod_pic_out = mariod_rl2;
+                end
+            else if (rl3 == 1'b1)
+                begin
+                    mariod_pic_out = mariod_rl3;
+                end
+            else if (jr == 1'b1)
+                begin
+                    mariod_pic_out = mariod_jr;
+                end
+            else if (jl == 1'b1)
+                begin
+                    mariod_pic_out = mariod_jl;
+                end
+            else if (ir == 1'b1)
+                begin
+                    mariod_pic_out = mariod_jr;
+                end
+            else if (il == 1'b1)
+                begin
+                    mariod_pic_out = mariod_jl;
+                end
+            else if (gr == 1'b1)
+                begin
+                    mariod_pic_out = mariod_jr;
+                end
+            else if (gl == 1'b1)
+                begin
+                    mariod_pic_out = mariod_jl;
+                end
+            else if (di == 1'b1)
+                begin
+                    mariod_pic_out = mariod_die;
+                end
+            else
+                begin
+                    mariod_pic_out = mariod_sr;
+                end
+        end
 
     always_comb
     begin
@@ -30,10 +98,21 @@ module mario_d (
                 mariod = 1'b1;
             end
         else
+			begin
             mariod = 1'b0;
+				end
+      if (mariod_x >10'd830)
+            begin
+                mario_arrived = 1'b1;
+            end
+        else
+			begin
+            mario_arrived = 1'b0;
+				end
     end
 
 endmodule 
+
 
 
 module mariod_movem (
@@ -65,7 +144,7 @@ module mariod_movem (
 
     logic [23:0] mario_counter, mario_counter_in;
     logic [23:0] counter2, counter2_in;
-    logic flag, flag_in;
+    logic already_jump, already_jump_in;
 	logic i;
     always_comb
     begin
@@ -134,7 +213,7 @@ module mariod_movem (
                 STATE <= STAND_R;
                 mario_counter <= 24'b0;
                 counter2 <= 24'b0;
-                flag <= 1'b0;
+                already_jump <= 1'b0;
                 sr  <= 1'b1;
                 sl  <= 1'b0;
                 rr1 <= 1'b0;
@@ -161,7 +240,7 @@ module mariod_movem (
                 STATE <= NEXT_STATE;
                 mario_counter <= mario_counter_in;
                 counter2 <= counter2_in;
-                flag <= flag_in;
+                already_jump <= already_jump_in;
                 sr  <= sr_in;
                 sl  <= sl_in;
                 rr1 <= rr1_in;
@@ -188,7 +267,7 @@ module mariod_movem (
         mariod_y_motion_input = mariod_y_motion;
         process_input = process;
         NEXT_STATE = STATE;
-        flag_in = flag;
+        already_jump_in = already_jump;
         mario_counter_in = mario_counter;
         counter2_in = counter2;
         if (frame_clk_rising_edge)
@@ -240,25 +319,25 @@ module mariod_movem (
                                     mariod_x_motion_input = 10'd0;
                                     mariod_y_motion_input = ~(10'd15) + 1'd1;
                                 end
-                            else if (w && ~flag)
+                            else if (w && ~already_jump)
                                 begin
                                     NEXT_STATE = JUMP_R;
-                                    flag_in = 1'b1;
+                                    already_jump_in = 1'b1;
                                 end
                             else if (a)
                                 begin
                                     NEXT_STATE = RUN_1_L;
-                                    flag_in = 1'b0;
+                                    already_jump_in = 1'b0;
                                 end
                             else if (d)
                                 begin
                                     NEXT_STATE = RUN_1_R;
-                                    flag_in = 1'b0;
+                                    already_jump_in = 1'b0;
                                 end
                             else if (~w)
                                 begin
                                     NEXT_STATE = STAND_R;
-                                    flag_in = 1'b0;
+                                    already_jump_in = 1'b0;
                                 end
                             else if (mariod_in_air)
                                 begin
@@ -267,7 +346,7 @@ module mariod_movem (
                             else
                                 begin
                                     NEXT_STATE = STAND_R;
-                                    flag_in = flag;
+                                    already_jump_in = already_jump;
                                 end
                         end
                     
@@ -298,25 +377,25 @@ module mariod_movem (
                                     mariod_x_motion_input = 10'd0;
                                     mariod_y_motion_input = ~(10'd15) + 1'd1;
                                 end
-                            else if (w && ~flag)
+                            else if (w && ~already_jump)
                                 begin
                                     NEXT_STATE = JUMP_L;
-                                    flag_in = 1'b1;
+                                    already_jump_in = 1'b1;
                                 end
                             else if (a)
                                 begin
                                     NEXT_STATE = RUN_1_L;
-                                    flag_in = 1'b0;
+                                    already_jump_in = 1'b0;
                                 end
                             else if (d)
                                 begin
                                     NEXT_STATE = RUN_1_R;
-                                    flag_in = 1'b0;
+                                    already_jump_in = 1'b0;
                                 end
                             else if (~w)
                                 begin
                                     NEXT_STATE = STAND_L;
-                                    flag_in = 1'b0;
+                                    already_jump_in = 1'b0;
                                 end
                             else if (mariod_in_air)
                                 begin
@@ -325,7 +404,7 @@ module mariod_movem (
                             else
                                 begin
                                     NEXT_STATE = STAND_L;
-                                    flag_in = flag;
+                                    already_jump_in = already_jump;
                                 end
                         end
                     
@@ -333,7 +412,7 @@ module mariod_movem (
                         begin
                             mariod_x_motion_input = 10'd2;
                             mariod_y_motion_input = 10'd0;
-                            flag_in = flag;
+                            already_jump_in = already_jump;
                             sr_in  = 1'b0;
                             sl_in  = 1'b0;
                             rr1_in = 1'b1;
@@ -364,7 +443,7 @@ module mariod_movem (
                                 end
                             if (~w)
                                 begin
-                                    flag_in = 1'b0;
+                                    already_jump_in = 1'b0;
                                 end
                             if (mariod_alive == 1'd0)
                                 begin
@@ -376,10 +455,10 @@ module mariod_movem (
                                 begin
                                     NEXT_STATE = IN_AIR_R;
                                 end
-                            else if (w && ~flag)
+                            else if (w && ~already_jump)
                                 begin
                                     NEXT_STATE = JUMP_R;
-                                    flag_in = 1'b1;
+                                    already_jump_in = 1'b1;
                                 end
                             else if (d && mario_counter[1])
                                 begin
@@ -410,7 +489,7 @@ module mariod_movem (
                         begin
                             mariod_x_motion_input = 10'd2;
                             mariod_y_motion_input = 10'd0;
-                            flag_in = flag;
+                            already_jump_in = already_jump;
                             sr_in  = 1'b0;
                             sl_in  = 1'b0;
                             rr1_in = 1'b0;
@@ -441,7 +520,7 @@ module mariod_movem (
                                 end
                             if (~w)
                                 begin
-                                    flag_in = 1'b0;
+                                    already_jump_in = 1'b0;
                                 end
                             if (mariod_alive == 1'd0)
                                 begin
@@ -453,10 +532,10 @@ module mariod_movem (
                                 begin
                                     NEXT_STATE = IN_AIR_R;
                                 end
-                            else if (w && ~flag)
+                            else if (w && ~already_jump)
                                 begin
                                     NEXT_STATE = JUMP_R;
-                                    flag_in = 1'b1;
+                                    already_jump_in = 1'b1;
                                 end
                             else if (d && mario_counter[1])
                                 begin
@@ -487,7 +566,7 @@ module mariod_movem (
                         begin
                             mariod_x_motion_input = 10'd2;
                             mariod_y_motion_input = 10'd0;
-                            flag_in = flag;
+                            already_jump_in = already_jump;
                             sr_in  = 1'b0;
                             sl_in  = 1'b0;
                             rr1_in = 1'b0;
@@ -519,7 +598,7 @@ module mariod_movem (
                                 end
                             if (~w)
                                 begin
-                                    flag_in = 1'b0;
+                                    already_jump_in = 1'b0;
                                 end
                             if (mariod_alive == 1'd0)
                                 begin
@@ -531,10 +610,10 @@ module mariod_movem (
                                 begin
                                     NEXT_STATE = IN_AIR_R;
                                 end
-                            else if (w && ~flag)
+                            else if (w && ~already_jump)
                                 begin
                                     NEXT_STATE = JUMP_R;
-                                    flag_in = 1'b1;
+                                    already_jump_in = 1'b1;
                                 end
                             else if (d && mario_counter[1])
                                 begin
@@ -565,7 +644,7 @@ module mariod_movem (
                         begin
                             mariod_x_motion_input = (~10'd2) + 1'b1;
                             mariod_y_motion_input = 10'd0;
-                            flag_in = flag;
+                            already_jump_in = already_jump;
                             sr_in  = 1'b0;
                             sl_in  = 1'b0;
                             rr1_in = 1'b0;
@@ -600,7 +679,7 @@ module mariod_movem (
                                 end
                             if (~w)
                                 begin
-                                    flag_in = 1'b0;
+                                    already_jump_in = 1'b0;
                                 end
                             if (mariod_alive == 1'd0)
                                 begin
@@ -612,10 +691,10 @@ module mariod_movem (
                                 begin
                                     NEXT_STATE = IN_AIR_L;
                                 end
-                            else if (w && ~flag)
+                            else if (w && ~already_jump)
                                 begin
                                     NEXT_STATE = JUMP_L;
-                                    flag_in = 1'b1;
+                                    already_jump_in = 1'b1;
                                 end
                             else if (a && mario_counter[1])
                                 begin
@@ -646,7 +725,7 @@ module mariod_movem (
                         begin
                             mariod_x_motion_input = (~10'd2) + 1'b1;
                             mariod_y_motion_input = 10'd0;
-                            flag_in = flag;
+                            already_jump_in = already_jump;
                             sr_in  = 1'b0;
                             sl_in  = 1'b0;
                             rr1_in = 1'b0;
@@ -682,7 +761,7 @@ module mariod_movem (
                                 end
                             if (~w)
                                 begin
-                                    flag_in = 1'b0;
+                                    already_jump_in = 1'b0;
                                 end
                             if (mariod_alive == 1'd0)
                                 begin
@@ -694,10 +773,10 @@ module mariod_movem (
                                 begin
                                     NEXT_STATE = IN_AIR_L;
                                 end
-                            else if (w && ~flag)
+                            else if (w && ~already_jump)
                                 begin
                                     NEXT_STATE = JUMP_L;
-                                    flag_in = 1'b1;
+                                    already_jump_in = 1'b1;
                                 end
                             else if (a && mario_counter[1])
                                 begin
@@ -728,7 +807,7 @@ module mariod_movem (
                         begin
                             mariod_x_motion_input = (~10'd2) + 1'b1;
                             mariod_y_motion_input = 10'd0;
-                            flag_in = flag;
+                            already_jump_in = already_jump;
                             sr_in  = 1'b0;
                             sl_in  = 1'b0;
                             rr1_in = 1'b0;
@@ -763,7 +842,7 @@ module mariod_movem (
                                 end                               
                             if (~w)
                                 begin
-                                    flag_in = 1'b0;
+                                    already_jump_in = 1'b0;
                                 end
                             if (mariod_alive == 1'd0)
                                 begin
@@ -775,10 +854,10 @@ module mariod_movem (
                                 begin
                                     NEXT_STATE = IN_AIR_L;
                                 end
-                            else if (w && ~flag)
+                            else if (w && ~already_jump)
                                 begin
                                     NEXT_STATE = JUMP_L;
-                                    flag_in = 1'b1;
+                                    already_jump_in = 1'b1;
                                 end
                             else if (a && mario_counter[1])
                                 begin
@@ -824,7 +903,7 @@ module mariod_movem (
                             di_in  = 1'b0;
                             mariod_x_motion_input = mariod_x_motion;
                             mariod_y_motion_input = (~10'd15) + 1'd1;
-                            flag_in = 1'b1;
+                            already_jump_in = 1'b1;
                             NEXT_STATE = IN_AIR_R;
                         end
                     
@@ -847,7 +926,7 @@ module mariod_movem (
                             di_in  = 1'b0;
                             mariod_x_motion_input = mariod_x_motion;
                             mariod_y_motion_input = (~10'd15) + 1'd1;
-                            flag_in = 1'b1;
+                            already_jump_in = 1'b1;
                             NEXT_STATE = IN_AIR_L;
                         end
                     
@@ -890,7 +969,7 @@ module mariod_movem (
                                     mariod_x_motion_input = mariod_x_motion;
                                 end
 
-                            flag_in = 1'b1;
+                            already_jump_in = 1'b1;
                             if (mariod_alive == 1'b0)
                                 begin
                                     NEXT_STATE = DIE;
@@ -925,11 +1004,11 @@ module mariod_movem (
                                             mariod_y_motion_input = 10'd0;
                                             if (w)
                                                 begin
-                                                    flag_in = 1'b1;
+                                                    already_jump_in = 1'b1;
                                                 end
                                             else
                                                 begin
-                                                    flag_in = 1'b0;
+                                                    already_jump_in = 1'b0;
                                                 end
                                         end
                                 end
@@ -974,7 +1053,7 @@ module mariod_movem (
                                     mariod_x_motion_input = mariod_x_motion;
                                 end
 
-                            flag_in = 1'b1;
+                            already_jump_in = 1'b1;
                             if (mariod_alive == 1'b0)
                                 begin
                                     NEXT_STATE = DIE;
@@ -1013,11 +1092,11 @@ module mariod_movem (
                                             mariod_y_motion_input = 10'd0;
                                             if (w)
                                                 begin
-                                                    flag_in = 1'b1;
+                                                    already_jump_in = 1'b1;
                                                 end
                                             else
                                                 begin
-                                                    flag_in = 1'b0;
+                                                    already_jump_in = 1'b0;
                                                 end
                                         end
                                 end
@@ -1245,79 +1324,79 @@ module mariod_movem (
     end
 endmodule
                 
-module mariod_image (
-        input Clk, Reset, frame_clk,
-        input [9:0] mariod_x,
-        input sl, sr, rr1, rr2, rr3, rl1, rl2, rl3, jr, jl, ir, gr, gl, di,il,
-        input [23:0] mariod_sl, mariod_sr, mariod_rl1, mariod_rl2, mariod_rl3, mariod_rr1, mariod_rr2, mariod_rr3, mariod_jr, mariod_jl, mariod_die,
-        output [23:0] mariod_pic_out
-);
-    always_ff @ (posedge Clk)
-        begin
-            if (sl == 1'b1)
-                begin
-                    mariod_pic_out = mariod_sl;
-                end
-            else if (sr == 1'b1)
-                begin
-                    mariod_pic_out = mariod_sr;
-                end
-            else if (rr1 == 1'b1)
-                begin
-                    mariod_pic_out = mariod_rr1;
-                end
-            else if (rr2 == 1'b1)
-                begin
-                    mariod_pic_out = mariod_rr2;
-                end
-            else if (rr3 == 1'b1)
-                begin
-                    mariod_pic_out = mariod_rr3;
-                end
-            else if (rl1 == 1'b1)
-                begin
-                    mariod_pic_out = mariod_rl1;
-                end
-            else if (rl2 == 1'b1)
-                begin
-                    mariod_pic_out = mariod_rl2;
-                end
-            else if (rl3 == 1'b1)
-                begin
-                    mariod_pic_out = mariod_rl3;
-                end
-            else if (jr == 1'b1)
-                begin
-                    mariod_pic_out = mariod_jr;
-                end
-            else if (jl == 1'b1)
-                begin
-                    mariod_pic_out = mariod_jl;
-                end
-            else if (ir == 1'b1)
-                begin
-                    mariod_pic_out = mariod_jr;
-                end
-            else if (il == 1'b1)
-                begin
-                    mariod_pic_out = mariod_jl;
-                end
-            else if (gr == 1'b1)
-                begin
-                    mariod_pic_out = mariod_jr;
-                end
-            else if (gl == 1'b1)
-                begin
-                    mariod_pic_out = mariod_jl;
-                end
-            else if (di == 1'b1)
-                begin
-                    mariod_pic_out = mariod_die;
-                end
-            else
-                begin
-                    mariod_pic_out = mariod_sr;
-                end
-        end
+// module mariod_image (
+//         input Clk, Reset, frame_clk,
+//         input [9:0] mariod_x,
+//         input sl, sr, rr1, rr2, rr3, rl1, rl2, rl3, jr, jl, ir, gr, gl, di,il,
+//         input [23:0] mariod_sl, mariod_sr, mariod_rl1, mariod_rl2, mariod_rl3, mariod_rr1, mariod_rr2, mariod_rr3, mariod_jr, mariod_jl, mariod_die,
+//         output [23:0] mariod_pic_out
+// );
+//     always_ff @ (posedge Clk)
+//         begin
+//             if (sl == 1'b1)
+//                 begin
+//                     mariod_pic_out = mariod_sl;
+//                 end
+//             else if (sr == 1'b1)
+//                 begin
+//                     mariod_pic_out = mariod_sr;
+//                 end
+//             else if (rr1 == 1'b1)
+//                 begin
+//                     mariod_pic_out = mariod_rr1;
+//                 end
+//             else if (rr2 == 1'b1)
+//                 begin
+//                     mariod_pic_out = mariod_rr2;
+//                 end
+//             else if (rr3 == 1'b1)
+//                 begin
+//                     mariod_pic_out = mariod_rr3;
+//                 end
+//             else if (rl1 == 1'b1)
+//                 begin
+//                     mariod_pic_out = mariod_rl1;
+//                 end
+//             else if (rl2 == 1'b1)
+//                 begin
+//                     mariod_pic_out = mariod_rl2;
+//                 end
+//             else if (rl3 == 1'b1)
+//                 begin
+//                     mariod_pic_out = mariod_rl3;
+//                 end
+//             else if (jr == 1'b1)
+//                 begin
+//                     mariod_pic_out = mariod_jr;
+//                 end
+//             else if (jl == 1'b1)
+//                 begin
+//                     mariod_pic_out = mariod_jl;
+//                 end
+//             else if (ir == 1'b1)
+//                 begin
+//                     mariod_pic_out = mariod_jr;
+//                 end
+//             else if (il == 1'b1)
+//                 begin
+//                     mariod_pic_out = mariod_jl;
+//                 end
+//             else if (gr == 1'b1)
+//                 begin
+//                     mariod_pic_out = mariod_jr;
+//                 end
+//             else if (gl == 1'b1)
+//                 begin
+//                     mariod_pic_out = mariod_jl;
+//                 end
+//             else if (di == 1'b1)
+//                 begin
+//                     mariod_pic_out = mariod_die;
+//                 end
+//             else
+//                 begin
+//                     mariod_pic_out = mariod_sr;
+//                 end
+//         end
     
-endmodule
+// endmodule
