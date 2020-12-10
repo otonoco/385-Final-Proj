@@ -99,16 +99,16 @@ module mario_d (
             end
         else
 			begin
-            mariod = 1'b0;
-				end
-      if (mariod_x >10'd830)
+                mariod = 1'b0;
+			end
+        if (mariod_x >10'd830)
             begin
                 mario_arrived = 1'b1;
             end
         else
-			begin
-            mario_arrived = 1'b0;
-				end
+            begin
+                mario_arrived = 1'b0;
+            end
     end
 
 endmodule 

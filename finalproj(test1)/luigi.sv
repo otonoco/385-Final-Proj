@@ -100,14 +100,14 @@ module luigi_d (
             end
         else
             luigi = 1'b0;
-		      if (luigi_x >10'd830)
+		if (luigi_x > 10'd830)
             begin
                 luigi_arrived = 1'b1;
             end
         else
 			begin
-            luigi_arrived = 1'b0;
-				end
+                luigi_arrived = 1'b0;
+			end
     end
 
 endmodule 
