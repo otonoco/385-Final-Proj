@@ -86,7 +86,7 @@ module luigi_movem (
                 luigi_in_air = 1'b0;
                 altitude = 10'd320;
             end
-        else if ((luigi_x + 10'd26 > mario_x) && (luigi_x < mario_x + 10'd26) && (luigi_y + luigi_y_motion >= mario_y) && (luigi_y + luigi_y_motion < 10'd384))
+        else if ((luigi_x + 10'd26 > mario_x) && (luigi_x < mario_x + 10'd26) && (luigi_y + luigi_y_motion >= mario_y - 10'd32) && (luigi_y + luigi_y_motion < 10'd384))
             begin
                 luigi_in_air = 1'b0;
                 altitude = mario_y - 10'd32;
@@ -268,6 +268,10 @@ module luigi_movem (
                                     NEXT_STATE = STAND_R;
                                     flag_in = 1'b0;
                                 end
+                            else if (luigi_in_air)
+                                begin
+                                    NEXT_STATE = IN_AIR_R;
+                                end
                             else
                                 begin
                                     NEXT_STATE = STAND_R;
@@ -327,6 +331,10 @@ module luigi_movem (
                                     NEXT_STATE = STAND_L;
                                     flag_in = 1'b0;
                                 end
+                            else if (luigi_in_air)
+                                begin
+                                    NEXT_STATE = IN_AIR_L;
+                                end
                             else
                                 begin
                                     NEXT_STATE = STAND_L;
@@ -359,11 +367,11 @@ module luigi_movem (
                                 begin
                                     luigi_x_motion_input = 10'd2;
                                 end
-									    if (luigi_x + 10'd26 > 10'd101 && luigi_x < 10'd99 + 10'd62 && luigi_y > 10'd320 && d)
+							if (luigi_x + luigi_x_motion_input + 10'd26 > 10'd101 && luigi_x + luigi_x_motion_input < 10'd99 && luigi_y > 10'd320 && d)
                                 begin
                                     luigi_x_motion_input = 10'd0;
                                 end
- if (luigi_x + 10'd26 > 10'd641 && luigi_x < 10'd639 + 10'd62 && luigi_y > 10'd320 && d)
+                            if (luigi_x + luigi_x_motion_input + 10'd26 > 10'd641 && luigi_x + luigi_x_motion_input < 10'd639 && luigi_y > 10'd320 && d)
                                 begin
                                     luigi_x_motion_input = 10'd0;
                                 end
@@ -376,6 +384,10 @@ module luigi_movem (
                                     NEXT_STATE = DIE;
                                     luigi_x_motion_input = 10'd0;
                                     luigi_y_motion_input = ~(9'd15) + 1'd1;
+                                end
+                            else if (luigi_in_air)
+                                begin
+                                    NEXT_STATE = IN_AIR_R;
                                 end
                             else if (w && ~flag)
                                 begin
@@ -432,11 +444,11 @@ module luigi_movem (
                                 begin
                                     luigi_x_motion_input = 10'd2;
                                 end
-										      if (luigi_x + 10'd26 > 10'd101 && luigi_x < 10'd99 + 10'd62 && luigi_y > 10'd320 && d)
+							if (luigi_x + luigi_x_motion_input + 10'd26 > 10'd101 && luigi_x + luigi_x_motion_input < 10'd99 && luigi_y > 10'd320 && d)
                                 begin
                                     luigi_x_motion_input = 10'd0;
                                 end
- if (luigi_x + 10'd26 > 10'd641 && luigi_x < 10'd639 + 10'd62 && luigi_y > 10'd320 && d)
+                            if (luigi_x + luigi_x_motion_input + 10'd26 > 10'd641 && luigi_x + luigi_x_motion_input < 10'd639 && luigi_y > 10'd320 && d)
                                 begin
                                     luigi_x_motion_input = 10'd0;
                                 end
@@ -449,6 +461,10 @@ module luigi_movem (
                                     NEXT_STATE = DIE;
                                     luigi_x_motion_input = 10'd0;
                                     luigi_y_motion_input = ~(10'd15) + 1'd1;
+                                end
+                            else if (luigi_in_air)
+                                begin
+                                    NEXT_STATE = IN_AIR_R;
                                 end
                             else if (w && ~flag)
                                 begin
@@ -505,11 +521,11 @@ module luigi_movem (
                                 begin
                                     luigi_x_motion_input = 10'd2;
                                 end
-										     if (luigi_x + 10'd26 > 10'd101 && luigi_x < 10'd99 + 10'd62 && luigi_y > 10'd320 && d)
+							if (luigi_x + luigi_x_motion_input + 10'd26 > 10'd101 && luigi_x + luigi_x_motion_input < 10'd99 && luigi_y > 10'd320 && d)
                                 begin
                                     luigi_x_motion_input = 10'd0;
                                 end
- if (luigi_x + 10'd26 > 10'd641 && luigi_x < 10'd639 + 10'd62 && luigi_y > 10'd320 && d)
+                            if (luigi_x + luigi_x_motion_input + 10'd26 > 10'd641 && luigi_x + luigi_x_motion_input < 10'd639 && luigi_y > 10'd320 && d)
                                 begin
                                     luigi_x_motion_input = 10'd0;
                                 end
@@ -522,6 +538,10 @@ module luigi_movem (
                                     NEXT_STATE = DIE;
                                     luigi_x_motion_input = 10'd0;
                                     luigi_y_motion_input = ~(10'd15) + 1'd1;
+                                end
+                            else if (luigi_in_air)
+                                begin
+                                    NEXT_STATE = IN_AIR_R;
                                 end
                             else if (w && ~flag)
                                 begin
@@ -579,11 +599,11 @@ module luigi_movem (
                                     luigi_x_motion_input = 10'd0;
                                     at_edge_in = 1'b1;
                                 end
-										      if (luigi_x + 10'd26 > 10'd101 && luigi_x < 10'd99 + 10'd62 && luigi_y > 10'd320 && d)
+							if (luigi_x + luigi_x_motion_input > 10'd101 && luigi_x + luigi_x_motion_input < 10'd99 + 10'd64 && luigi_y > 10'd320 && a)
                                 begin
                                     luigi_x_motion_input = 10'd0;
                                 end
- if (luigi_x + 10'd26 > 10'd641 && luigi_x < 10'd639 + 10'd62 && luigi_y > 10'd320 && d)
+                            if (luigi_x + luigi_x_motion_input > 10'd641 && luigi_x + luigi_x_motion_input < 10'd639 + 10'd64 && luigi_y > 10'd320 && a)
                                 begin
                                     luigi_x_motion_input = 10'd0;
                                 end
@@ -596,6 +616,10 @@ module luigi_movem (
                                     NEXT_STATE = DIE;
                                     luigi_x_motion_input = 10'd0;
                                     luigi_y_motion_input = ~(10'd15) + 1'd1;
+                                end
+                            else if (luigi_in_air)
+                                begin
+                                    NEXT_STATE = IN_AIR_L;
                                 end
                             else if (w && ~flag)
                                 begin
@@ -653,11 +677,11 @@ module luigi_movem (
                                     luigi_x_motion_input = 10'd0;
                                     at_edge_in = 1'b1;
                                 end
-										      if (luigi_x + 10'd26 > 10'd101 && luigi_x < 10'd99 + 10'd62 && luigi_y > 10'd320 && d)
+							if (luigi_x + luigi_x_motion_input > 10'd101 && luigi_x + luigi_x_motion_input < 10'd99 + 10'd64 && luigi_y > 10'd320 && a)
                                 begin
                                     luigi_x_motion_input = 10'd0;
                                 end
- if (luigi_x + 10'd26 > 10'd641 && luigi_x < 10'd639 + 10'd62 && luigi_y > 10'd320 && d)
+                            if (luigi_x + luigi_x_motion_input > 10'd641 && luigi_x + luigi_x_motion_input < 10'd639 + 10'd64 && luigi_y > 10'd320 && a)
                                 begin
                                     luigi_x_motion_input = 10'd0;
                                 end
@@ -670,6 +694,10 @@ module luigi_movem (
                                     NEXT_STATE = DIE;
                                     luigi_x_motion_input = 10'd0;
                                     luigi_y_motion_input = ~(10'd15) + 1'd1;
+                                end
+                            else if (luigi_in_air)
+                                begin
+                                    NEXT_STATE = IN_AIR_L;
                                 end
                             else if (w && ~flag)
                                 begin
@@ -727,11 +755,11 @@ module luigi_movem (
                                     luigi_x_motion_input = 10'd0;
                                     at_edge_in = 1'b1;
                                 end
-										      if (luigi_x + 10'd26 > 10'd101 && luigi_x < 10'd99 + 10'd62 && luigi_y > 10'd320 && d)
+							if (luigi_x + luigi_x_motion_input > 10'd101 && luigi_x + luigi_x_motion_input < 10'd99 + 10'd64 && luigi_y > 10'd320 && a)
                                 begin
                                     luigi_x_motion_input = 10'd0;
                                 end
- if (luigi_x + 10'd26 > 10'd641 && luigi_x < 10'd639 + 10'd62 && luigi_y > 10'd320 && d)
+                            if (luigi_x + luigi_x_motion_input > 10'd641 && luigi_x + luigi_x_motion_input < 10'd639 + 10'd64 && luigi_y > 10'd320 && a)
                                 begin
                                     luigi_x_motion_input = 10'd0;
                                 end
@@ -744,6 +772,10 @@ module luigi_movem (
                                     NEXT_STATE = DIE;
                                     luigi_x_motion_input = 10'd0;
                                     luigi_y_motion_input = ~(10'd15) + 1'd1;
+                                end
+                            else if (luigi_in_air)
+                                begin
+                                    NEXT_STATE = IN_AIR_L;
                                 end
                             else if (w && ~flag)
                                 begin

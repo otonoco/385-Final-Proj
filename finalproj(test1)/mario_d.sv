@@ -85,7 +85,7 @@ module mariod_movem (
                 mariod_in_air = 1'b0;
                 altitude = 10'd320;
             end
-        else if ((mariod_x + 10'd26 > luigi_x) && (mariod_x < luigi_x + 10'd26) && (mariod_y + mariod_y_motion >= luigi_y) && (mariod_y + mariod_y_motion < 10'd384))
+        else if ((mariod_x + 10'd26 > luigi_x) && (mariod_x < luigi_x + 10'd26) && (mariod_y + mariod_y_motion >= luigi_y - 10'd32) && (mariod_y + mariod_y_motion < 10'd384))
             begin
                 mariod_in_air = 1'b0;
                 altitude = luigi_y - 10'd32;
@@ -354,11 +354,11 @@ module mariod_movem (
                                     mariod_x_motion_input = 10'd0;
                                 end
                             // kong qi qiang
-                            if (mariod_x + 10'd26 > 10'd101 && mariod_x < 10'd99 + 10'd62 && mariod_y > 10'd320 && d)
+                            if (mariod_x + mariod_x_motion_input + 10'd26 > 10'd101 && mariod_x + mariod_x_motion_input < 10'd99 && mariod_y > 10'd320 && d)
                                 begin
                                     mariod_x_motion_input = 10'd0;
                                 end
-                            if (mariod_x + 10'd26 > 10'd641 && mariod_x < 10'd639 + 10'd62 && mariod_y > 10'd320 && d)
+                            if (mariod_x + mariod_x_motion_input + 10'd26 > 10'd641 && mariod_x + mariod_x_motion_input < 10'd639 && mariod_y > 10'd320 && d)
                                 begin
                                     mariod_x_motion_input = 10'd0;
                                 end
@@ -431,11 +431,11 @@ module mariod_movem (
                                     mariod_x_motion_input = 10'd0;
                                 end
                             // kong qi qiang
-                            if (mariod_x + 10'd26 > 10'd101 && mariod_x < 10'd99 + 10'd62 && mariod_y > 10'd320 && d)
+                            if (mariod_x + mariod_x_motion_input + 10'd26 > 10'd101 && mariod_x + mariod_x_motion_input < 10'd99 && mariod_y > 10'd320 && d)
                                 begin
                                     mariod_x_motion_input = 10'd0;
                                 end
-                            if (mariod_x + 10'd26 > 10'd641 && mariod_x < 10'd639 + 10'd62 && mariod_y > 10'd320 && d)
+                            if (mariod_x + mariod_x_motion_input + 10'd26 > 10'd641 && mariod_x + mariod_x_motion_input < 10'd639 && mariod_y > 10'd320 && d)
                                 begin
                                     mariod_x_motion_input = 10'd0;
                                 end
@@ -509,11 +509,11 @@ module mariod_movem (
                                 end
 
                             // kong qi qiang
-                            if (mariod_x + 10'd26 > 10'd101 && mariod_x < 10'd99 + 10'd62 && mariod_y > 10'd320 && d)
+                            if (mariod_x + mariod_x_motion_input + 10'd26 > 10'd101 && mariod_x + mariod_x_motion_input < 10'd99 && mariod_y > 10'd320 && d)
                                 begin
                                     mariod_x_motion_input = 10'd0;
                                 end
-                            if (mariod_x + 10'd26 > 10'd641 && mariod_x < 10'd639 + 10'd62 && mariod_y > 10'd320 && d)
+                            if (mariod_x + mariod_x_motion_input + 10'd26 > 10'd641 && mariod_x + mariod_x_motion_input < 10'd639 && mariod_y > 10'd320 && d)
                                 begin
                                     mariod_x_motion_input = 10'd0;
                                 end
@@ -590,11 +590,11 @@ module mariod_movem (
                                     mariod_x_motion_input = 10'd0;
                                 end
                             // kong qi qiang
-                            if (mariod_x + 10'd26 > 10'd101 && mariod_x < 10'd99 + 10'd62 && mariod_y > 10'd320 && a)
+                            if (mariod_x + mariod_x_motion_input > 10'd101 && mariod_x + mariod_x_motion_input < 10'd99 + 10'd64 && mariod_y > 10'd320 && a)
                                 begin
                                     mariod_x_motion_input = 10'd0;
                                 end
-                            if (mariod_x + 10'd26 > 10'd641 && mariod_x < 10'd639 + 10'd62 && mariod_y > 10'd320 && d)
+                            if (mariod_x + mariod_x_motion_input > 10'd641 && mariod_x + mariod_x_motion_input < 10'd639 + 10'd64 && mariod_y > 10'd320 && a)
                                 begin
                                     mariod_x_motion_input = 10'd0;
                                 end
@@ -672,11 +672,11 @@ module mariod_movem (
                                 end
 
                             // kong qi qiang
-                            if (mariod_x + 10'd26 > 10'd101 && mariod_x < 10'd99 + 10'd62 && mariod_y > 10'd320 && a)
+                            if (mariod_x + mariod_x_motion_input > 10'd101 && mariod_x + mariod_x_motion_input < 10'd99 + 10'd64 && mariod_y > 10'd320 && a)
                                 begin
                                     mariod_x_motion_input = 10'd0;
                                 end
-                            if (mariod_x + 10'd26 > 10'd641 && mariod_x < 10'd639 + 10'd62 && mariod_y > 10'd320 && d)
+                            if (mariod_x + mariod_x_motion_input > 10'd641 && mariod_x + mariod_x_motion_input < 10'd639 + 10'd64 && mariod_y > 10'd320 && a)
                                 begin
                                     mariod_x_motion_input = 10'd0;
                                 end
@@ -753,11 +753,11 @@ module mariod_movem (
                                     mariod_x_motion_input = 10'd0;
                                 end
                             // kong qi qiang
-                            if (mariod_x + 10'd26 > 10'd101 && mariod_x < 10'd99 + 10'd62 && mariod_y > 10'd320 && a)
+                            if (mariod_x + mariod_x_motion_input > 10'd101 && mariod_x + mariod_x_motion_input < 10'd99 + 10'd64 && mariod_y > 10'd320 && a)
                                 begin
                                     mariod_x_motion_input = 10'd0;
                                 end
-                             if (mariod_x + 10'd26 > 10'd641 && mariod_x < 10'd639 + 10'd62 && mariod_y > 10'd320 && d)
+                             if (mariod_x + mariod_x_motion_input > 10'd641 && mariod_x + mariod_x_motion_input < 10'd639 + 10'd64 && mariod_y > 10'd320 && a)
                                 begin
                                     mariod_x_motion_input = 10'd0;
                                 end                               

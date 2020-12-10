@@ -253,7 +253,7 @@ module coin_image (
             end
         else if (eaten)
             begin
-                coin_pic_out = 24'h0;
+                coin_pic_out = 24'h6b8cff;
             end
         else
             begin

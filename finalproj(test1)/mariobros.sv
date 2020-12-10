@@ -90,7 +90,7 @@ module mariobros (
 
 
     HexDriver hex0 (
-            .In(mario_counter[3:0]),
+            .In(mario_at_right),
             .Out(HEX0)
     );
 
@@ -189,8 +189,8 @@ module mariobros (
     logic [23:0] mariod_pic_out,groundd,cloud,pipe_p1,pipe_p2,end_p,back_p1,back_p2,castle_p;
     logic [23:0] mariod_sr, mariod_sl, mariod_rr1, mariod_rr2, mariod_rr3, mariod_rl1, mariod_rl2, mariod_rl3, mariod_jr, mariod_jl, mariod_die; 
 	 
-    luigi_d lluigi(.Clk(Clk), .Reset(Reset_h), .frame_clk(VGA_VS), .DrawX(drawxsig), .DrawY(drawysig), .luigi_alive(~luigi_dead), .keycode(keycode), .mario_x(mariod_x), .mario_y(mariod_y), .luigi_x(luigi_x), .luigi_y(luigi_y), .process_from_mario(process1), .process(process2), .luigi_y_motion(luigi_y_motion), .luigi(luigi), .luigi_in_air(luigi_in_air), .luigi_pic_out(luigi_pic_out), .at_edge(luigi_at_edge), .*);
-    mario_d dmario(.Clk(Clk), .Reset(Reset_h), .frame_clk(VGA_VS), .DrawX(drawxsig), .DrawY(drawysig), .mariod_alive(~mariod_dead), .keycode(keycode), .mariod_x(mariod_x), .mariod_y(mariod_y), .process(process1), .mariod_y_motion(mariod_y_motion), .mariod(mariod), .mariod_in_air(mariod_in_air), .mariod_pic_out(mariod_pic_out), .luigi_at_edge(luigi_at_edge), .*);
+    luigi_d lluigi(.Clk(Clk), .Reset(Reset_h), .frame_clk(VGA_VS), .DrawX(drawxsig), .DrawY(drawysig), .luigi_alive(~luigi_dead), .keycode(keycode), .mario_x(mariod_x), .mario_y(mariod_y), .luigi_x(luigi_x), .luigi_y(luigi_y), .process_from_mario(process1), .process(process2), .luigi_y_motion(luigi_y_motion), .luigi(luigi), .luigi_in_air(luigi_in_air), .luigi_pic_out(luigi_pic_out), .at_edge(luigi_at_edge),.luigi_arrived(luigi_arrived), .*);
+    mario_d dmario(.Clk(Clk), .Reset(Reset_h), .frame_clk(VGA_VS), .DrawX(drawxsig), .DrawY(drawysig), .mariod_alive(~mariod_dead), .keycode(keycode), .mariod_x(mariod_x), .mariod_y(mariod_y), .process(process1), .mariod_y_motion(mariod_y_motion), .mariod(mariod), .mariod_in_air(mariod_in_air), .mariod_pic_out(mariod_pic_out), .luigi_at_edge(luigi_at_edge),.mariod_arrived(mariod_arrived), .*);
 	  
     // The followings are for Gomba
     logic gomba_alive,gomba, gomba_dead;
@@ -199,11 +199,12 @@ module mariobros (
     logic gomba_deadd; 
     logic mariod_dead, luigi_dead;
     logic mario_dead;
-
+	logic mariod_arrived;
+	logic luigi_arrived;
     // logic [1:0] player;
     // assign player = 2'b10;
-
-	gomba #(10'd0, 10'd1023, 10'd400) gb1(.Clk(Clk), .Reset(Reset_h), .frame_clk(VGA_VS),.gomba(gomba), .DrawX(drawxsig), .DrawY(drawysig), .mario_x(mario_x), .process(process1),.gomba_alive(~gomba_dead), .gomba_left(gomba_left), .gomba_right(gomba_right), .gomba_deadp(gomba_deadp), .gomba_x(gomba_x), .gomba_y(gomba_y), .gomba_pic_out(gomba_pic_out));
+	logic mario_at_right;
+	gomba #(10'd0, 10'd1023, 10'd400) gb1(.Clk(Clk), .Reset(Reset_h), .frame_clk(VGA_VS), .gomba(gomba), .DrawX(drawxsig), .DrawY(drawysig), .mario_x(mariod_x), .luigi_x(luigi_x), .process(process1), .gomba_alive(~gomba_dead), .mario_alive(~mariod_dead), .luigi_alive(~luigi_dead), .gomba_left(gomba_left), .gomba_right(gomba_right), .gomba_deadp(gomba_deadp), .gomba_x(gomba_x), .gomba_y(gomba_y), .gomba_pic_out(gomba_pic_out),);
     gomba_r g_r(.Clk(VGA_Clk), .read_addr((drawxsig - gomba_x + process1)%32 + 32 * ((drawysig - gomba_y)%32)), .data_out(gomba_right));
     gomba_l g_l(.Clk(VGA_Clk), .read_addr((drawxsig - gomba_x + process1)%32 + 32 * ((drawysig - gomba_y)%32)), .data_out(gomba_left));
 	gomba_dead gd(.Clk(VGA_Clk), .read_addr((drawxsig - gomba_x + process1)%32 + 32* ((drawysig - gomba_y)%32)), .data_out(gomba_deadp));
@@ -212,7 +213,7 @@ module mariobros (
 //    mario_s mmario(.Clk(Clk), .Reset(Reset_h), .frame_clk(VGA_VS), .DrawX(drawxsig), .DrawY(drawysig), .mario_alive(~mario_dead), .keycode(keycode), .mario_x(mario_x), .mario_y(mario_y), .process(process), .mario_y_motion(mario_y_motion), .mario(mario), .mario_in_air(mario_in_air), .mario_pic_out(mario_pic_out), .*);
     // color_mapper cm(.mario(mario), .luigi(luigi), .mariod(mariod), .gomba(gomba), .coin(coin), .coin_pic_out(coin_pic_out), .mario_pic_out(mario_pic_out), .mariod_pic_out(mariod_pic_out), .luigi_pic_out(luigi_pic_out), .gomba_pic_out(gomba_pic_out), .ground(groundd), .DrawX(drawxsig), .DrawY(drawysig), .Red(Red), .Green(Green), .Blue(Blue));
 
-    color_mapper cm(.mariod(mariod), .luigi(luigi), .gomba(gomba), .coin1(coin1), .coin2(coin2), .mariod_pic_out(mariod_pic_out), .luigi_pic_out(luigi_pic_out), .gomba_pic_out(gomba_pic_out), .coin1_pic_out(coin1_pic_out), .coin2_pic_out(coin2_pic_out), .ground(groundd), .pipe_1(pipe1),.pipe_2(pipe2),.pipe1(pipe_p1),.pipe2(pipe_p2),.castle(castle),.castle_p(castle_p),.cloud(cloud),.back1(back_p1),.back2(back_p2),.end_p(end_p),.endd(endd),.mariod_dead(mariod_dead),.luigi_dead(luigi_dead),.DrawX(drawxsig), .DrawY(drawysig), .Red(Red), .Green(Green), .Blue(Blue));
+    color_mapper cm(.mariod(mariod),.blank(blank), .luigi(luigi), .gomba(gomba), .coin1(coin1), .coin2(coin2), .mariod_pic_out(mariod_pic_out), .luigi_pic_out(luigi_pic_out), .gomba_pic_out(gomba_pic_out), .coin1_pic_out(coin1_pic_out), .coin2_pic_out(coin2_pic_out), .ground(groundd), .pipe_1(pipe1),.pipe_2(pipe2),.pipe1(pipe_p1),.pipe2(pipe_p2),.mario_arrived(mariod_arrived),.luigi_arrived(luigi_arrived),.castle(castle),.castle_p(castle_p),.cloud(cloud),.back1(back_p1),.back2(back_p2),.mariod_dead(mariod_dead),.luigi_dead(luigi_dead),.DrawX(drawxsig), .DrawY(drawysig), .Red(Red), .Green(Green), .Blue(Blue));
 
     // The followings are for coins
     logic coin1_alive, coin1;
@@ -283,22 +284,18 @@ module mariobros (
 
     RP p1(.Clk(VGA_Clk), .read_addr((drawxsig - pipe_x1 + process1) % 64 + 64 * ((drawysig - pipe_y1) % 62)), .data_out(pipe_p1));
     RP p2(.Clk(VGA_Clk), .read_addr((drawxsig - pipe_x2 + process1) % 64 + 64 * ((drawysig - pipe_y2) % 62)), .data_out(pipe_p2));
-	RE end_d(.Clk(VGA_Clk), .read_addr((drawxsig - end_x) % 120 + 120 * ((drawysig - end_y) % 46)), .data_out(end_p));
 
-    endscreen_po po(.DrawX(drawxsig), .DrawY(drawysig), .end_x(end_x), .end_y(end_y), .endd(endd));
     is_pipe ip1(.DrawX(drawxsig), .DrawY(drawysig), .pipe_x(pipe_x1), .pipe_y(pipe_y1), .process(process1), .pipe(pipe1));
     is_pipe ip2(.DrawX(drawxsig), .DrawY(drawysig), .pipe_x(pipe_x2), .pipe_y(pipe_y2), .process(process1), .pipe(pipe2));
     is_castle ic(.DrawX(drawxsig), .DrawY(drawysig), .castle_x(castle_x), .castle_y(castle_y),.process(process1), .castle(castle));
 	read_castle rc(.Clk(VGA_Clk), .read_addr((drawxsig - castle_x + process1) % 88 + 88 * ((drawysig - castle_y) % 64)), .data_out(castle_p));
 	logic endd, pipe1, pipe2, castle;
-    logic [9:0] end_x, end_y, pipe_x1, pipe_y1, pipe_x2, pipe_y2, castle_x, castle_y;
-    assign end_x = 10'd200;
-    assign end_y = 10'd200;
+    logic [9:0]  pipe_x1, pipe_y1, pipe_x2, pipe_y2, castle_x, castle_y;
     assign pipe_x1 = 10'd100;
     assign pipe_y1 = 10'd354;
     assign pipe_x2 = 10'd640;
     assign pipe_y2 = 10'd354;
-    assign castle_x = 10'd750;
+    assign castle_x = 10'd800;
     assign castle_y = 10'd352;
 	 
 	// logic ram_init_error;
