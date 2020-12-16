@@ -1,7 +1,6 @@
 //This is the Colour Mapper module.
 
 module  color_mapper (
-        // input mario, 
         input mariod,
         input luigi,
         input coin1, coin3, coin4, coin5, coin6, coin7,
@@ -40,10 +39,8 @@ module  color_mapper (
     logic [10:0] sprite_addr;
     logic [7:0] sprite_data;
     logic shape31_on, shape32_on, shape33_on, shape34_on, shape35_on, shape36_on, shape37_on;
-    //start screen
     logic shape21_on, shape22_on, shape23_on, shape24_on, shape25_on, shape26_on, shape27_on, shape28_on, shape29_on, shape210_on, shape211_on, shape212_on, shape213_on, shape214_on, shape215_on, shape216_on;
     logic shape217_on, shape218_on, shape219_on, shape220_on, shape221_on, shape222_on, shape223_on, shape224_on, shape225_on, shape226_on, shape227_on, shape228_on, shape229_on, shape230_on, shape231_on, shape232_on, shape233_on, shape234_on, shape235_on, shape236_on;
-//first line 
     logic [10:0] shape21_x = 240;
     logic [10:0] shape21_y = 200;
     logic [10:0] shape22_x = 250;
@@ -1733,187 +1730,187 @@ module  color_mapper (
                                     VGA_G = 8'hff;
                                     VGA_B = 8'hff;
                                 end
-                            else if(shape26_on ==1'b1 && sprite_data[7-DrawX+shape26_x]==1'b1)
+                            else if(shape26_on == 1'b1 && sprite_data[7 - DrawX + shape26_x] == 1'b1)
                                 begin
                                     VGA_R = 8'hff; 
                                     VGA_G = 8'hff;
                                     VGA_B = 8'hff;
                                 end
-                            else if(shape27_on ==1'b1 && sprite_data[7-DrawX+shape27_x]==1'b1)
+                            else if(shape27_on == 1'b1 && sprite_data[7 - DrawX + shape27_x] == 1'b1)
                                 begin
                                     VGA_R = 8'hff; 
                                     VGA_G = 8'hff;
                                     VGA_B = 8'hff;
                                 end
-                            else if(shape28_on ==1'b1 && sprite_data[7-DrawX+shape28_x]==1'b1)
+                            else if(shape28_on == 1'b1 && sprite_data[7 - DrawX + shape28_x] == 1'b1)
                                 begin
                                     VGA_R = 8'hff; 
                                     VGA_G = 8'hff;
                                     VGA_B = 8'hff;
                                 end
-                            else if(shape29_on ==1'b1 && sprite_data[7-DrawX+shape29_x]==1'b1)
+                            else if(shape29_on == 1'b1 && sprite_data[7 - DrawX + shape29_x] == 1'b1)
                                 begin
                                     VGA_R = 8'hff; 
                                     VGA_G = 8'hff;
                                     VGA_B = 8'hff;
                                 end
-                            else if(shape210_on ==1'b1 && sprite_data[7-DrawX+shape210_x]==1'b1)
+                            else if(shape210_on == 1'b1 && sprite_data[7 - DrawX + shape210_x] == 1'b1)
                                 begin
                                     VGA_R = 8'hff; 
                                     VGA_G = 8'hff;
                                     VGA_B = 8'hff;
                                 end
-                            else if(shape211_on ==1'b1 && sprite_data[7-DrawX+shape211_x]==1'b1)
+                            else if(shape211_on == 1'b1 && sprite_data[7 - DrawX + shape211_x] == 1'b1)
                                 begin
                                     VGA_R = 8'hff; 
                                     VGA_G = 8'hff;
                                     VGA_B = 8'hff;
                                 end
-                            else if(shape212_on ==1'b1 && sprite_data[7-DrawX+shape212_x]==1'b1)
+                            else if(shape212_on == 1'b1 && sprite_data[7 - DrawX + shape212_x] == 1'b1)
                                 begin
                                     VGA_R = 8'hff; 
                                     VGA_G = 8'hff;
                                     VGA_B = 8'hff;
                                 end
-                            else if(shape213_on ==1'b1 && sprite_data[7-DrawX+shape213_x]==1'b1)
+                            else if(shape213_on == 1'b1 && sprite_data[7 - DrawX + shape213_x] == 1'b1)
                                 begin
                                     VGA_R = 8'hff; 
                                     VGA_G = 8'hff;
                                     VGA_B = 8'hff;
                                 end
-                            else if(shape214_on ==1'b1 && sprite_data[7-DrawX+shape214_x]==1'b1)
+                            else if(shape214_on == 1'b1 && sprite_data[7 - DrawX + shape214_x] == 1'b1)
                                 begin
                                     VGA_R = 8'hff; 
                                     VGA_G = 8'hff;
                                     VGA_B = 8'hff;
                                 end
-                            else if(shape215_on ==1'b1 && sprite_data[7-DrawX+shape215_x]==1'b1)
+                            else if(shape215_on == 1'b1 && sprite_data[7 - DrawX + shape215_x] == 1'b1)
                                 begin
                                     VGA_R = 8'hff; 
                                     VGA_G = 8'hff;
                                     VGA_B = 8'hff;
                                 end
-                            else if(shape216_on ==1'b1 && sprite_data[7-DrawX+shape216_x]==1'b1)
+                            else if(shape216_on == 1'b1 && sprite_data[7 - DrawX + shape216_x] == 1'b1)
                                 begin
                                     VGA_R = 8'hff; 
                                     VGA_G = 8'hff;
                                     VGA_B = 8'hff;
                                 end
-                            else if(shape217_on ==1'b1 && sprite_data[7-DrawX+shape217_x]==1'b1)
+                            else if(shape217_on == 1'b1 && sprite_data[7 - DrawX + shape217_x] == 1'b1)
                                 begin
                                     VGA_R = 8'hff; 
                                     VGA_G = 8'hff;
                                     VGA_B = 8'hff;
                                 end
-                            else if(shape218_on ==1'b1 && sprite_data[7-DrawX+shape218_x]==1'b1)
+                            else if(shape218_on == 1'b1 && sprite_data[7 - DrawX + shape218_x] == 1'b1)
                                 begin
                                     VGA_R = 8'hff; 
                                     VGA_G = 8'hff;
                                     VGA_B = 8'hff;
                                 end
-                            else if(shape219_on ==1'b1 && sprite_data[7-DrawX+shape219_x]==1'b1)
+                            else if(shape219_on == 1'b1 && sprite_data[7 - DrawX + shape219_x] == 1'b1)
                                 begin
                                     VGA_R = 8'hff; 
                                     VGA_G = 8'hff;
                                     VGA_B = 8'hff;
                                 end
-                            else if(shape220_on ==1'b1 && sprite_data[7-DrawX+shape220_x]==1'b1)
+                            else if(shape220_on == 1'b1 && sprite_data[7 - DrawX + shape220_x] == 1'b1)
                                 begin
                                     VGA_R = 8'hff; 
                                     VGA_G = 8'hff;
                                     VGA_B = 8'hff;
                                 end
-                            else if(shape221_on ==1'b1 && sprite_data[7-DrawX+shape221_x]==1'b1)
+                            else if(shape221_on == 1'b1 && sprite_data[7 - DrawX + shape221_x] == 1'b1)
                                 begin
                                     VGA_R = 8'hff; 
                                     VGA_G = 8'hff;
                                     VGA_B = 8'hff;
                                 end
-                            else if(shape222_on ==1'b1 && sprite_data[7-DrawX+shape222_x]==1'b1)
+                            else if(shape222_on == 1'b1 && sprite_data[7 - DrawX + shape222_x] == 1'b1)
                                 begin
                                     VGA_R = 8'hff; 
                                     VGA_G = 8'hff;
                                     VGA_B = 8'hff;
                                 end
-                            else if(shape223_on ==1'b1 && sprite_data[7-DrawX+shape223_x]==1'b1)
+                            else if(shape223_on == 1'b1 && sprite_data[7 - DrawX + shape223_x] == 1'b1)
                                 begin
                                     VGA_R = 8'hff; 
                                     VGA_G = 8'hff;
                                     VGA_B = 8'hff;
                                 end
-                            else if(shape224_on ==1'b1 && sprite_data[7-DrawX+shape224_x]==1'b1)
+                            else if(shape224_on == 1'b1 && sprite_data[7 - DrawX + shape224_x] == 1'b1)
                                 begin
                                     VGA_R = 8'hff; 
                                     VGA_G = 8'hff;
                                     VGA_B = 8'hff;
                                 end
-                            else if(shape225_on ==1'b1 && sprite_data[7-DrawX+shape225_x]==1'b1)
+                            else if(shape225_on == 1'b1 && sprite_data[7 - DrawX + shape225_x] == 1'b1)
                                 begin
                                     VGA_R = 8'hff; 
                                     VGA_G = 8'hff;
                                     VGA_B = 8'hff;
                                 end
-                            else if(shape226_on ==1'b1 && sprite_data[7-DrawX+shape226_x]==1'b1)
+                            else if(shape226_on == 1'b1 && sprite_data[7 - DrawX + shape226_x] == 1'b1)
                                 begin
                                     VGA_R = 8'hff; 
                                     VGA_G = 8'hff;
                                     VGA_B = 8'hff;
                                 end
-                            else if(shape227_on ==1'b1 && sprite_data[7-DrawX+shape227_x]==1'b1)
+                            else if(shape227_on == 1'b1 && sprite_data[7 - DrawX + shape227_x] == 1'b1)
                                 begin
                                     VGA_R = 8'hff; 
                                     VGA_G = 8'hff;
                                     VGA_B = 8'hff;
                                 end
-                            else if(shape228_on ==1'b1 && sprite_data[7-DrawX+shape228_x]==1'b1)
+                            else if(shape228_on == 1'b1 && sprite_data[7 - DrawX + shape228_x] == 1'b1)
                                 begin
                                     VGA_R = 8'hff; 
                                     VGA_G = 8'hff;
                                     VGA_B = 8'hff;
                                 end
-                            else if(shape229_on ==1'b1 && sprite_data[7-DrawX+shape229_x]==1'b1)
+                            else if(shape229_on == 1'b1 && sprite_data[7 - DrawX + shape229_x] == 1'b1)
                                 begin
                                     VGA_R = 8'hff; 
                                     VGA_G = 8'hff;
                                     VGA_B = 8'hff;
                                 end
-                            else if(shape230_on ==1'b1 && sprite_data[7-DrawX+shape230_x]==1'b1)
+                            else if(shape230_on == 1'b1 && sprite_data[7 - DrawX + shape230_x] == 1'b1)
                                 begin
                                     VGA_R = 8'hff; 
                                     VGA_G = 8'hff;
                                     VGA_B = 8'hff;
                                 end
-                            else if(shape231_on ==1'b1 && sprite_data[7-DrawX+shape231_x]==1'b1)
+                            else if(shape231_on == 1'b1 && sprite_data[7 - DrawX + shape231_x] == 1'b1)
                                 begin
                                     VGA_R = 8'hff; 
                                     VGA_G = 8'hff;
                                     VGA_B = 8'hff;
                                 end
-                            else if(shape232_on ==1'b1 && sprite_data[7-DrawX+shape232_x]==1'b1)
+                            else if(shape232_on == 1'b1 && sprite_data[7 - DrawX + shape232_x] == 1'b1)
                                 begin
                                     VGA_R = 8'hff; 
                                     VGA_G = 8'hff;
                                     VGA_B = 8'hff;
                                 end
-                            else if(shape233_on ==1'b1 && sprite_data[7-DrawX+shape233_x]==1'b1)
+                            else if(shape233_on == 1'b1 && sprite_data[7 - DrawX + shape233_x] == 1'b1)
                                 begin
                                     VGA_R = 8'hff; 
                                     VGA_G = 8'hff;
                                     VGA_B = 8'hff;
                                 end
-                            else if(shape234_on ==1'b1 && sprite_data[7-DrawX+shape234_x]==1'b1)
+                            else if(shape234_on == 1'b1 && sprite_data[7 - DrawX + shape234_x] == 1'b1)
                                 begin
                                     VGA_R = 8'hff; 
                                     VGA_G = 8'hff;
                                     VGA_B = 8'hff;
                                 end
-                            else if(shape235_on ==1'b1 && sprite_data[7-DrawX+shape235_x]==1'b1)
+                            else if(shape235_on == 1'b1 && sprite_data[7 - DrawX + shape235_x] == 1'b1)
                                 begin
                                     VGA_R = 8'hff; 
                                     VGA_G = 8'hff;
                                     VGA_B = 8'hff;
                                 end
-                            else if(shape236_on ==1'b1 && sprite_data[7-DrawX+shape236_x]==1'b1)
+                            else if(shape236_on == 1'b1 && sprite_data[7 - DrawX + shape236_x] == 1'b1)
                                 begin
                                     VGA_R = 8'hff; 
                                     VGA_G = 8'hff;
@@ -1981,37 +1978,37 @@ module  color_mapper (
                             shape7_on = 1'b0;
                             shape8_on = 1'b0;
                             shape9_on = 1'b0;
-                            if(DrawX >= shape11_x && DrawX <shape11_x+shape11_size_x && DrawY >=shape11_y && DrawY < shape11_y+shape11_size_y)
+                            if (DrawX >= shape11_x && DrawX < shape11_x + shape11_size_x && DrawY >= shape11_y && DrawY < shape11_y + shape11_size_y)
                                 begin
                                     shape11_on = 1'b1;
                                     shape12_on = 1'b0;
                                     shape13_on = 1'b0;
                                     shape14_on = 1'b0;
-                                    sprite_addr = (DrawY-shape11_y+16*'h57);
+                                    sprite_addr = (DrawY - shape11_y + 16 * 'h57);
                                 end
-                            else if(DrawX >= shape12_x && DrawX <shape12_x+shape12_size_x && DrawY >=shape12_y && DrawY < shape12_y+shape12_size_y)
+                            else if (DrawX >= shape12_x && DrawX < shape12_x + shape12_size_x && DrawY >= shape12_y && DrawY < shape12_y + shape12_size_y)
                                 begin
                                     shape11_on = 1'b0;
                                     shape12_on = 1'b1;
                                     shape13_on = 1'b0;
                                     shape14_on = 1'b0;
-                                    sprite_addr = (DrawY-shape12_y+16*'h49);
+                                    sprite_addr = (DrawY - shape12_y + 16 * 'h49);
                                 end
-                            else if(DrawX >= shape13_x && DrawX <shape13_x+shape13_size_x && DrawY >=shape13_y && DrawY < shape13_y+shape13_size_y)
+                            else if (DrawX >= shape13_x && DrawX < shape13_x + shape13_size_x && DrawY >= shape13_y && DrawY < shape13_y + shape13_size_y)
                                 begin
                                     shape11_on = 1'b0;
                                     shape12_on = 1'b0;
                                     shape13_on = 1'b1;
                                     shape14_on = 1'b0;
-                                    sprite_addr = (DrawY-shape13_y+16*'h4e);
+                                    sprite_addr = (DrawY - shape13_y + 16 * 'h4e);
                                 end
-                            else if(DrawX >= shape14_x && DrawX <shape14_x+shape14_size_x && DrawY >=shape14_y && DrawY < shape14_y+shape14_size_y)
+                            else if (DrawX >= shape14_x && DrawX < shape14_x + shape14_size_x && DrawY >= shape14_y && DrawY < shape14_y + shape14_size_y)
                                 begin
                                     shape11_on = 1'b0;
                                     shape12_on = 1'b0;
                                     shape13_on = 1'b0;
                                     shape14_on = 1'b1;
-                                    sprite_addr = (DrawY-shape14_y+16*'h3);
+                                    sprite_addr = (DrawY - shape14_y + 16 * 'h3);
                                 end
                             else
                                 begin
@@ -2022,28 +2019,28 @@ module  color_mapper (
                                     sprite_addr = 1'b0;
                                 end
                                 
-                            if(shape11_on ==1'b1 && sprite_data[7-DrawX+shape11_x]==1'b1)
+                            if (shape11_on == 1'b1 && sprite_data[7 - DrawX + shape11_x] == 1'b1)
                                 begin
                                     VGA_R = 8'hff; 
                                     VGA_G = 8'hff;
                                     VGA_B = 8'hff;
                                 end
                             
-                            else if(shape12_on ==1'b1 && sprite_data[7-DrawX+shape12_x]==1'b1)
+                            else if (shape12_on ==1'b1 && sprite_data[7 - DrawX + shape12_x] == 1'b1)
                                 begin
                                     VGA_R = 8'hff; 
                                     VGA_G = 8'hff;
                                     VGA_B = 8'hff;
                                 end
                             
-                            else if(shape13_on ==1'b1 && sprite_data[7-DrawX+shape13_x]==1'b1)
+                            else if (shape13_on == 1'b1 && sprite_data[7 - DrawX + shape13_x] == 1'b1)
                                 begin
                                     VGA_R = 8'hff; 
                                     VGA_G = 8'hff;
                                     VGA_B = 8'hff;
                                 end
                             
-                            else if(shape14_on ==1'b1 && sprite_data[7-DrawX+shape14_x]==1'b1)
+                            else if (shape14_on == 1'b1 && sprite_data[7 - DrawX + shape14_x] == 1'b1)
                                 begin
                                     VGA_R = 8'hff; 
                                     VGA_G = 8'hff;
@@ -2108,7 +2105,7 @@ module  color_mapper (
                             shape13_on = 1'b0;
                             shape14_on = 1'b0;
                             sprite_addr = 1'b0;
-                            if(DrawX >= shape31_x && DrawX <shape31_x+shape_size_x && DrawY >=shape31_y && DrawY < shape31_y+shape_size_y)
+                            if (DrawX >= shape31_x && DrawX < shape31_x + shape_size_x && DrawY >= shape31_y && DrawY < shape31_y + shape_size_y)
                                 begin
                                     shape31_on = 1'b1;
                                     shape32_on = 1'b0;
@@ -2117,9 +2114,9 @@ module  color_mapper (
                                     shape35_on = 1'b0;
                                     shape36_on = 1'b0;
                                     shape37_on = 1'b0;
-                                    sprite_addr = (DrawY-shape31_y+16*'h53);
+                                    sprite_addr = (DrawY - shape31_y + 16 * 'h53);
                                 end
-                            else if(DrawX >= shape32_x && DrawX <shape32_x+shape_size_x && DrawY >=shape32_y && DrawY < shape32_y+shape_size_y)
+                            else if (DrawX >= shape32_x && DrawX < shape32_x + shape_size_x && DrawY >= shape32_y && DrawY < shape32_y + shape_size_y)
                                 begin
                                     shape31_on = 1'b0;
                                     shape32_on = 1'b1;
@@ -2128,9 +2125,9 @@ module  color_mapper (
                                     shape35_on = 1'b0;
                                     shape36_on = 1'b0;
                                     shape37_on = 1'b0;
-                                    sprite_addr = (DrawY-shape32_y+16*'h43);
+                                    sprite_addr = (DrawY - shape32_y + 16 *'h43);
                                 end
-                            else if(DrawX >= shape33_x && DrawX <shape33_x+shape_size_x && DrawY >=shape33_y && DrawY < shape33_y+shape_size_y)
+                            else if (DrawX >= shape33_x && DrawX < shape33_x + shape_size_x && DrawY >= shape33_y && DrawY < shape33_y + shape_size_y)
                                 begin
                                     shape31_on = 1'b0;
                                     shape32_on = 1'b0;
@@ -2139,9 +2136,9 @@ module  color_mapper (
                                     shape35_on = 1'b0;
                                     shape36_on = 1'b0;
                                     shape37_on = 1'b0;
-                                    sprite_addr = (DrawY-shape33_y+16*'h4f);
+                                    sprite_addr = (DrawY - shape33_y + 16 * 'h4f);
                                 end
-                            else if(DrawX >= shape34_x && DrawX <shape34_x+shape_size_x && DrawY >=shape34_y && DrawY < shape34_y+shape_size_y)
+                            else if (DrawX >= shape34_x && DrawX < shape34_x + shape_size_x && DrawY >= shape34_y && DrawY < shape34_y + shape_size_y)
                                 begin
                                     shape31_on = 1'b0;
                                     shape32_on = 1'b0;
@@ -2150,9 +2147,9 @@ module  color_mapper (
                                     shape35_on = 1'b0;
                                     shape36_on = 1'b0;
                                     shape37_on = 1'b0;
-                                    sprite_addr = (DrawY-shape34_y+16*'h52);
+                                    sprite_addr = (DrawY - shape34_y + 16 * 'h52);
                                 end
-                            else if(DrawX >= shape35_x && DrawX <shape35_x+shape_size_x && DrawY >=shape35_y && DrawY < shape35_y+shape_size_y)
+                            else if (DrawX >= shape35_x && DrawX < shape35_x + shape_size_x && DrawY >= shape35_y && DrawY < shape35_y + shape_size_y)
                                 begin
                                     shape31_on = 1'b0;
                                     shape32_on = 1'b0;
@@ -2161,9 +2158,9 @@ module  color_mapper (
                                     shape35_on = 1'b1;
                                     shape36_on = 1'b0;
                                     shape37_on = 1'b0;
-                                    sprite_addr = (DrawY-shape35_y+16*'h45);
+                                    sprite_addr = (DrawY - shape35_y + 16 * 'h45);
                                 end
-                            else if(DrawX >= shape36_x && DrawX <shape36_x+shape_size_x && DrawY >=shape36_y && DrawY < shape36_y+shape_size_y)
+                            else if (DrawX >= shape36_x && DrawX < shape36_x + shape_size_x && DrawY >= shape36_y && DrawY < shape36_y + shape_size_y)
                                 begin
                                     shape31_on = 1'b0;
                                     shape32_on = 1'b0;
@@ -2172,9 +2169,9 @@ module  color_mapper (
                                     shape35_on = 1'b0;
                                     shape36_on = 1'b1;
                                     shape37_on = 1'b0;
-                                    sprite_addr = (DrawY-shape36_y+16*'h7c);
+                                    sprite_addr = (DrawY - shape36_y + 16 * 'h7c);
                                 end
-                            else if(DrawX >= shape37_x && DrawX <shape37_x+shape_size_x && DrawY >=shape37_y && DrawY < shape37_y+shape_size_y)
+                            else if (DrawX >= shape37_x && DrawX < shape37_x + shape_size_x && DrawY >= shape37_y && DrawY < shape37_y + shape_size_y)
                                 begin
                                     shape31_on = 1'b0;
                                     shape32_on = 1'b0;
@@ -2183,18 +2180,18 @@ module  color_mapper (
                                     shape35_on = 1'b0;
                                     shape36_on = 1'b0;
                                     shape37_on = 1'b1;
-                                    sprite_addr = (DrawY-shape37_y+16*('h30+score));
+                                    sprite_addr = (DrawY - shape37_y + 16 * ('h30+score));
                                 end
                             else
                                 begin
-                                shape31_on = 1'b0;
-                                shape32_on = 1'b0;
-                                shape33_on = 1'b0;
-                                shape34_on = 1'b0;
-                                shape35_on = 1'b0;
-                                shape36_on = 1'b0;
-                                shape37_on = 1'b0;
-                                sprite_addr = 1'b0;
+                                    shape31_on = 1'b0;
+                                    shape32_on = 1'b0;
+                                    shape33_on = 1'b0;
+                                    shape34_on = 1'b0;
+                                    shape35_on = 1'b0;
+                                    shape36_on = 1'b0;
+                                    shape37_on = 1'b0;
+                                    sprite_addr = 1'b0;
                                 end
 
                             if (mariod)
@@ -2294,43 +2291,43 @@ module  color_mapper (
                                     VGA_G = back1[15:8];
                                     VGA_B = back1[7:0];
                                 end
-                            else if(shape31_on ==1'b1 && sprite_data[7-DrawX+shape31_x]==1'b1)
+                            else if(shape31_on == 1'b1 && sprite_data[7 - DrawX + shape31_x] == 1'b1)
                                 begin
                                     VGA_R = 8'hff; 
                                     VGA_G = 8'hff;
                                     VGA_B = 8'hff;
                                 end
-                            else if(shape32_on ==1'b1 && sprite_data[7-DrawX+shape32_x]==1'b1)
+                            else if(shape32_on == 1'b1 && sprite_data[7 - DrawX + shape32_x] == 1'b1)
                                 begin
                                     VGA_R = 8'hff; 
                                     VGA_G = 8'hff;
                                     VGA_B = 8'hff;
                                 end
-                            else if(shape33_on ==1'b1 && sprite_data[7-DrawX+shape33_x]==1'b1)
+                            else if(shape33_on == 1'b1 && sprite_data[7 - DrawX + shape33_x] == 1'b1)
                                 begin
                                     VGA_R = 8'hff; 
                                     VGA_G = 8'hff;
                                     VGA_B = 8'hff;
                                 end
-                            else if(shape34_on ==1'b1 && sprite_data[7-DrawX+shape34_x]==1'b1)
+                            else if(shape34_on == 1'b1 && sprite_data[7 - DrawX + shape34_x] == 1'b1)
                                 begin
                                     VGA_R = 8'hff; 
                                     VGA_G = 8'hff;
                                     VGA_B = 8'hff;
                                 end
-                            else if(shape35_on ==1'b1 && sprite_data[7-DrawX+shape35_x]==1'b1)
+                            else if(shape35_on == 1'b1 && sprite_data[7 - DrawX + shape35_x] == 1'b1)
                                 begin
                                     VGA_R = 8'hff; 
                                     VGA_G = 8'hff;
                                     VGA_B = 8'hff;
                                 end
-                            else if(shape36_on ==1'b1 && sprite_data[7-DrawX+shape36_x]==1'b1)
+                            else if(shape36_on == 1'b1 && sprite_data[7 - DrawX + shape36_x] == 1'b1)
                                 begin
                                     VGA_R = 8'hff; 
                                     VGA_G = 8'hff;
                                     VGA_B = 8'hff;
                                 end
-                            else if(shape37_on ==1'b1 && sprite_data[7-DrawX+shape37_x]==1'b1)
+                            else if(shape37_on == 1'b1 && sprite_data[7 - DrawX + shape37_x] == 1'b1)
                                 begin
                                     VGA_R = 8'hff; 
                                     VGA_G = 8'hff;
@@ -2392,7 +2389,7 @@ module  color_mapper (
 							shape12_on = 1'b0;
 							shape13_on = 1'b0;
 							shape14_on = 1'b0;
-                            if(DrawX >= shape1_x && DrawX <shape1_x+shape1_size_x && DrawY >=shape1_y && DrawY < shape1_y+shape1_size_y)
+                            if (DrawX >= shape1_x && DrawX < shape1_x + shape1_size_x && DrawY >= shape1_y && DrawY < shape1_y + shape1_size_y)
                                 begin
                                     shape1_on = 1'b1;
                                     shape2_on = 1'b0;
@@ -2403,9 +2400,9 @@ module  color_mapper (
                                     shape7_on = 1'b0;
                                     shape8_on = 1'b0;
                                     shape9_on = 1'b0;
-                                    sprite_addr = (DrawY-shape1_y+16*'h47);
+                                    sprite_addr = (DrawY - shape1_y + 16 * 'h47);
                                 end
-                            else if(DrawX >= shape2_x && DrawX <shape2_x+shape2_size_x && DrawY >=shape2_y && DrawY < shape2_y+shape2_size_y)
+                            else if (DrawX >= shape2_x && DrawX < shape2_x + shape2_size_x && DrawY >= shape2_y && DrawY < shape2_y + shape2_size_y)
                                 begin
                                     shape1_on = 1'b0;
                                     shape2_on = 1'b1;
@@ -2416,9 +2413,9 @@ module  color_mapper (
                                     shape7_on = 1'b0;
                                     shape8_on = 1'b0;
                                     shape9_on = 1'b0;
-                                    sprite_addr = (DrawY-shape2_y+16*'h41);
+                                    sprite_addr = (DrawY - shape2_y + 16 * 'h41);
                                 end
-                            else if(DrawX >= shape3_x && DrawX <shape3_x+shape3_size_x && DrawY >=shape3_y && DrawY < shape3_y+shape3_size_y)
+                            else if (DrawX >= shape3_x && DrawX < shape3_x + shape3_size_x && DrawY >= shape3_y && DrawY < shape3_y + shape3_size_y)
                                 begin
                                     shape1_on = 1'b0;
                                     shape2_on = 1'b0;
@@ -2429,9 +2426,9 @@ module  color_mapper (
                                     shape7_on = 1'b0;
                                     shape8_on = 1'b0;
                                     shape9_on = 1'b0;
-                                    sprite_addr = (DrawY-shape3_y+16*'h4d);
+                                    sprite_addr = (DrawY - shape3_y + 16 * 'h4d);
                                 end
-                            else if(DrawX >= shape4_x && DrawX <shape4_x+shape4_size_x && DrawY >=shape4_y && DrawY < shape4_y+shape4_size_y)
+                            else if (DrawX >= shape4_x && DrawX < shape4_x + shape4_size_x && DrawY >= shape4_y && DrawY < shape4_y + shape4_size_y)
                                 begin
                                     shape1_on = 1'b0;
                                     shape2_on = 1'b0;
@@ -2442,9 +2439,9 @@ module  color_mapper (
                                     shape7_on = 1'b0;
                                     shape8_on = 1'b0;
                                     shape9_on = 1'b0;
-                                    sprite_addr = (DrawY-shape4_y+16*'h45);
+                                    sprite_addr = (DrawY - shape4_y + 16 * 'h45);
                                 end
-                            else if(DrawX >= shape5_x && DrawX <shape5_x+shape5_size_x && DrawY >=shape5_y && DrawY < shape5_y+shape5_size_y)
+                            else if (DrawX >= shape5_x && DrawX < shape5_x + shape5_size_x && DrawY >= shape5_y && DrawY < shape5_y + shape5_size_y)
                                 begin
                                     shape1_on = 1'b0;
                                     shape2_on = 1'b0;
@@ -2455,9 +2452,9 @@ module  color_mapper (
                                     shape7_on = 1'b0;
                                     shape8_on = 1'b0;
                                     shape9_on = 1'b0;
-                                    sprite_addr = (DrawY-shape5_y+16*'h2d);
+                                    sprite_addr = (DrawY - shape5_y + 16 * 'h2d);
                                 end
-                            else if(DrawX >= shape6_x && DrawX <shape6_x+shape6_size_x && DrawY >=shape6_y && DrawY < shape6_y+shape6_size_y)
+                            else if (DrawX >= shape6_x && DrawX < shape6_x + shape6_size_x && DrawY >= shape6_y && DrawY < shape6_y + shape6_size_y)
                                 begin
                                     shape1_on = 1'b0;
                                     shape2_on = 1'b0;
@@ -2468,9 +2465,9 @@ module  color_mapper (
                                     shape7_on = 1'b0;
                                     shape8_on = 1'b0;
                                     shape9_on = 1'b0;
-                                    sprite_addr = (DrawY-shape6_y+16*'h4f);
+                                    sprite_addr = (DrawY - shape6_y + 16 * 'h4f);
                                 end
-                            else if(DrawX >= shape7_x && DrawX <shape7_x+shape7_size_x && DrawY >=shape7_y && DrawY < shape7_y+shape7_size_y)
+                            else if (DrawX >= shape7_x && DrawX < shape7_x + shape7_size_x && DrawY >=shape7_y && DrawY < shape7_y + shape7_size_y)
                                 begin
                                     shape1_on = 1'b0;
                                     shape2_on = 1'b0;
@@ -2481,9 +2478,9 @@ module  color_mapper (
                                     shape7_on = 1'b1;
                                     shape8_on = 1'b0;
                                     shape9_on = 1'b0;
-                                    sprite_addr = (DrawY-shape7_y+16*'h56);
+                                    sprite_addr = (DrawY - shape7_y + 16 * 'h56);
                                 end
-                            else if(DrawX >= shape8_x && DrawX <shape8_x+shape8_size_x && DrawY >=shape8_y && DrawY < shape8_y+shape8_size_y)
+                            else if (DrawX >= shape8_x && DrawX < shape8_x + shape8_size_x && DrawY >= shape8_y && DrawY < shape8_y + shape8_size_y)
                                 begin
                                     shape1_on = 1'b0;
                                     shape2_on = 1'b0;
@@ -2494,9 +2491,9 @@ module  color_mapper (
                                     shape7_on = 1'b0;
                                     shape8_on = 1'b1;
                                     shape9_on = 1'b0;
-                                    sprite_addr = (DrawY-shape8_y+16*'h45);
+                                    sprite_addr = (DrawY - shape8_y + 16 * 'h45);
                                 end
-                            else if(DrawX >= shape9_x && DrawX <shape9_x+shape9_size_x && DrawY >=shape9_y && DrawY < shape9_y+shape9_size_y)
+                            else if (DrawX >= shape9_x && DrawX < shape9_x + shape9_size_x && DrawY >= shape9_y && DrawY < shape9_y + shape9_size_y)
                                 begin
                                     shape1_on = 1'b0;
                                     shape2_on = 1'b0;
@@ -2507,7 +2504,7 @@ module  color_mapper (
                                     shape7_on = 1'b0;
                                     shape8_on = 1'b0;
                                     shape9_on = 1'b1;
-                                    sprite_addr = (DrawY-shape9_y+16*'h52);
+                                    sprite_addr = (DrawY - shape9_y + 16 * 'h52);
                                 end
                             else
                                 begin
@@ -2523,55 +2520,55 @@ module  color_mapper (
                                     sprite_addr = 1'b0;
                                 end
                             
-                            if(shape1_on ==1'b1 && sprite_data[7-DrawX+shape1_x]==1'b1)
+                            if (shape1_on == 1'b1 && sprite_data[7 - DrawX + shape1_x] == 1'b1)
                                 begin
                                     VGA_R = 8'hff; 
                                     VGA_G = 8'hff;
                                     VGA_B = 8'hff;
                                 end
-                            else if(shape2_on ==1'b1 && sprite_data[7-DrawX+shape2_x]==1'b1)
+                            else if (shape2_on == 1'b1 && sprite_data[7 - DrawX + shape2_x] == 1'b1)
                                 begin
                                     VGA_R = 8'hff; 
                                     VGA_G = 8'hff;
                                     VGA_B = 8'hff;
                                 end
-                            else if(shape3_on ==1'b1 && sprite_data[7-DrawX+shape3_x]==1'b1)
+                            else if (shape3_on == 1'b1 && sprite_data[7 - DrawX + shape3_x] == 1'b1)
                                 begin
                                     VGA_R = 8'hff; 
                                     VGA_G = 8'hff;
                                     VGA_B = 8'hff;
                                 end
-                            else if(shape4_on ==1'b1 && sprite_data[7-DrawX+shape4_x]==1'b1)
+                            else if (shape4_on == 1'b1 && sprite_data[7 - DrawX + shape4_x] == 1'b1)
                                 begin
                                     VGA_R = 8'hff; 
                                     VGA_G = 8'hff;
                                     VGA_B = 8'hff;
                                 end
-                            else if(shape5_on ==1'b1 && sprite_data[7-DrawX+shape5_x]==1'b1)
+                            else if (shape5_on == 1'b1 && sprite_data[7 - DrawX + shape5_x] == 1'b1)
                                 begin
                                     VGA_R = 8'hff; 
                                     VGA_G = 8'hff;
                                     VGA_B = 8'hff;
                                 end
-                            else if(shape6_on ==1'b1 && sprite_data[7-DrawX+shape6_x]==1'b1)
+                            else if (shape6_on == 1'b1 && sprite_data[7 - DrawX + shape6_x] == 1'b1)
                                 begin
                                     VGA_R = 8'hff; 
                                     VGA_G = 8'hff;
                                     VGA_B = 8'hff;
                                 end
-                            else if(shape7_on ==1'b1 && sprite_data[7-DrawX+shape7_x]==1'b1)
+                            else if (shape7_on == 1'b1 && sprite_data[7 - DrawX + shape7_x] == 1'b1)
                                 begin
                                     VGA_R = 8'hff; 
                                     VGA_G = 8'hff;
                                     VGA_B = 8'hff;
                                 end
-                            else if(shape8_on ==1'b1 && sprite_data[7-DrawX+shape8_x]==1'b1)
+                            else if (shape8_on == 1'b1 && sprite_data[7 - DrawX + shape8_x] == 1'b1)
                                 begin
                                     VGA_R = 8'hff; 
                                     VGA_G = 8'hff;
                                     VGA_B = 8'hff;
                                 end
-                            else if(shape9_on ==1'b1 && sprite_data[7-DrawX+shape9_x]==1'b1)
+                            else if (shape9_on == 1'b1 && sprite_data[7 - DrawX + shape9_x] == 1'b1)
                                 begin
                                     VGA_R = 8'hff; 
                                     VGA_G = 8'hff;

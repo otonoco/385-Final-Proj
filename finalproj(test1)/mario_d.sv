@@ -15,10 +15,10 @@ module mario_d (
     logic w, s, a, d;
     logic sl, sr, rr1, rr2, rr3, rl1, rl2, rl3, jr, jl, il, ir, gr, gl, di;
 
-    assign a = ((keycode[15:8] == 8'h04) | (keycode[7:0] == 8'h04)|(keycode[23:16] == 8'h04) | (keycode[31:24] == 8'h04));
-    assign d = ((keycode[15:8] == 8'h07) | (keycode[7:0] == 8'h07)|(keycode[23:16] == 8'h07) | (keycode[31:24] == 8'h07));
-    assign w = ((keycode[15:8] == 8'h1A) | (keycode[7:0] == 8'h1A)|(keycode[23:16] == 8'h1A) | (keycode[31:24] == 8'h1A));
-    assign s = ((keycode[15:8] == 8'h16) | (keycode[7:0] == 8'h16)|(keycode[23:16] == 8'h16) | (keycode[31:24] == 8'h16));
+    assign a = ((keycode[15:8] == 8'h04) | (keycode[7:0] == 8'h04) | (keycode[23:16] == 8'h04) | (keycode[31:24] == 8'h04));
+    assign d = ((keycode[15:8] == 8'h07) | (keycode[7:0] == 8'h07) | (keycode[23:16] == 8'h07) | (keycode[31:24] == 8'h07));
+    assign w = ((keycode[15:8] == 8'h1A) | (keycode[7:0] == 8'h1A) | (keycode[23:16] == 8'h1A) | (keycode[31:24] == 8'h1A));
+    assign s = ((keycode[15:8] == 8'h16) | (keycode[7:0] == 8'h16) | (keycode[23:16] == 8'h16) | (keycode[31:24] == 8'h16));
 
     // mariod_image m_i(.*);
     mariod_movem m_m(.*);
